@@ -1,11 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Requests\Order;
 
 use Illuminate\Foundation\Http\FormRequest;
 
 /**
  * @OA\Schema(
+ *     schema="StoreOrderRequest",
  *     title="StoreOrderRequest",
  *     description="Request body for creating a new order",
  *     required={"symbol", "side", "price", "amount"}

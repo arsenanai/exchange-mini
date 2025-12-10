@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers;
 
 use App\Http\Resources\AssetResource;
@@ -21,12 +23,7 @@ class ProfileController extends Controller
      *      @OA\Response(
      *          response=200,
      *          description="Successful operation",
-     *
-     *          @OA\JsonContent(
-     *
-     *              @OA\Property(property="balanceUsd", type="string", example="9850.00000000"),
-     *              @OA\Property(property="assets", type="array", @OA\Items(ref="#/components/schemas/AssetResource"))
-     *          )
+     *          @OA\JsonContent(ref="#/components/schemas/UserResource")
      *      ),
      *
      *      @OA\Response(response=401, description="Unauthenticated")

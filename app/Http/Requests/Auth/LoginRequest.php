@@ -1,11 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Requests\Auth;
 
 use Illuminate\Foundation\Http\FormRequest;
 
 /**
  * @OA\Schema(
+ *     schema="LoginRequest",
  *     title="LoginRequest",
  *     description="User login request body"
  * )

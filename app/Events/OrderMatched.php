@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Events;
 
 use App\Http\Resources\OrderResource;
@@ -17,21 +19,18 @@ class OrderMatched implements ShouldBroadcast
         public string $amount
     ) {}
 
-    public function broadcastOn(): array
-    {
+    public function broadcastOn(): array {
         return [
             new PrivateChannel("user.{$this->buyOrder->user_id}"),
             new PrivateChannel("user.{$this->sellOrder->user_id}"),
         ];
     }
 
-    public function broadcastAs(): string
-    {
+    public function broadcastAs(): string {
         return 'OrderMatched';
     }
 
-    public function broadcastWith(): array
-    {
+    public function broadcastWith(): array {
         return [
             'symbol' => $this->symbol,
             'price' => $this->price,

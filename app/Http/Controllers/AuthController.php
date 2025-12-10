@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers;
 
 use App\Http\Requests\Auth\LoginRequest;
@@ -28,9 +30,7 @@ class AuthController extends Controller
      *      @OA\Response(
      *          response=201,
      *          description="User registered successfully",
-     *          @OA\JsonContent(
-     *              @OA\Property(property="data", type="object", ref="#/components/schemas/UserResource")
-     *          )
+     *          @OA\JsonContent(ref="#/components/schemas/UserResource")
      *      ),
      *      @OA\Response(
      *          response=422,
@@ -67,11 +67,13 @@ class AuthController extends Controller
      *          description="Successful login",
      *          @OA\JsonContent(
      *              @OA\Property(property="token", type="string", example="1|aBcDeFgHiJkLmNoPqRsTuVwXyZ"),
-     *              @OA\Property(property="user", type="object", ref="#/components/schemas/UserResource")
+     *              @OA\Property(property="user", type="object",
+     *                  @OA\Property(property="data", ref="#/components/schemas/UserResource")
+     *              )
      *          )
      *      ),
      *      @OA\Response(
-     *          response=401,
+     *          response=422,
      *          description="Unauthenticated",
      *          @OA\JsonContent(
      *              @OA\Property(property="message", type="string", example="Invalid credentials")

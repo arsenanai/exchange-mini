@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Jobs;
 
 use App\Models\Order;
@@ -19,8 +21,6 @@ class MatchOrderJob implements ShouldQueue
     public function handle(MatchingService $matcher): void
     {
         $order = Order::find($this->orderId);
-        if ($order) {
-            $matcher->tryMatch($order);
-        }
+        if ($order) $matcher->tryMatch($order);
     }
 }

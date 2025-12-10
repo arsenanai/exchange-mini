@@ -19,12 +19,10 @@ Backend (Laravel API):
     *   Install `larastan/larastan`, configure `phpstan.neon`, and resolve issues.
 4.  [x] Migrate to Pest for Testing:
     *   Install Pest.
-    *   [x] Convert existing PHPUnit tests to Pest syntax.
-    *   [x] Write comprehensive Unit and Feature tests for all core logic (e.g., MatchingService, Controllers, Models).
-5.  [ ] Implement OpenAPI (Swagger) Documentation:
-    *   Install `darkaonline/l5-swagger`.
-    *   Add OpenAPI annotations to all API controllers and models to generate `openapi.yaml`.
-    *   Ensure documentation accurately reflects API contracts (including `camelCase` fields).
+    *   Convert existing PHPUnit tests to Pest syntax.
+    *   Write comprehensive Unit and Feature tests for all core logic (e.g., MatchingService, Controllers, Models).
+5.  [x] Implement OpenAPI (Swagger) Documentation:
+    *   Install `darkaonline/l5-swagger` and add annotations to generate `openapi.yaml`.
 
 Frontend (Vue.js SPA):
 ----------------------

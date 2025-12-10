@@ -17,7 +17,8 @@ return [
             'group_options' => [],
         ],
         'paths' => [
-            'docs' => storage_path('api-docs/openapi.yaml'),
+            'docs' => storage_path('api-docs'),
+            'docs_yaml' => 'openapi.yaml',
             'views' => base_path('resources/views/vendor/l5-swagger'),
             'base' => env('L5_SWAGGER_BASE_PATH', null),
         ],
@@ -30,7 +31,9 @@ return [
                     'in' => 'header',
                 ],
             ],
-            'security' => [],
+            'security' => [
+                ['bearerAuth' => []],
+            ],
         ],
         'generate_always' => env('L5_SWAGGER_GENERATE_ALWAYS', false),
         'generate_yaml_copy' => env('L5_SWAGGER_GENERATE_YAML_COPY', false),
@@ -52,7 +55,6 @@ return [
             ],
         ],
         'constants' => [
-            'L5_SWAGGER_CONST_HOST' => env('L5_SWAGGER_CONST_HOST', 'http://my-default-host.com'),
         ],
     ],
     'documentations' => [
@@ -66,7 +68,11 @@ return [
             'paths' => [
                 'use_absolute_path' => env('L5_SWAGGER_USE_ABSOLUTE_PATH', true),
                 'swagger_ui_assets_path' => env('L5_SWAGGER_UI_ASSETS_PATH', 'vendor/swagger-api/swagger-ui/dist/'),
-                'format_to_use_for_docs' => 'yaml',
+                'annotations' => [
+                    base_path('app'),
+                ],
+                'excludes' => [], // You can exclude directories here if needed
+                'format_to_use_for_docs' => env('L5_SWAGGER_FORMAT_TO_USE_FOR_DOCS', 'yaml'),
             ],
         ],
     ],

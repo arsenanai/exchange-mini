@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers;
 
 use App\Http\Requests\Order\StoreOrderRequest;
@@ -33,8 +35,11 @@ class OrderController extends Controller
      *          response=200,
      *          description="Successful operation",
      *          @OA\JsonContent(
-     *              type="array",
-     *              @OA\Items(ref="#/components/schemas/OrderResource")
+     *              @OA\Property(
+     *                  property="data",
+     *                  type="array",
+     *                  @OA\Items(ref="#/components/schemas/OrderResource")
+     *              )
      *          )
      *      )
      * )
@@ -236,8 +241,11 @@ class OrderController extends Controller
      *          response=200,
      *          description="Successful operation",
      *          @OA\JsonContent(
-     *              type="array",
-     *              @OA\Items(ref="#/components/schemas/OrderResource")
+     *              @OA\Property(
+     *                  property="data",
+     *                  type="array",
+     *                  @OA\Items(ref="#/components/schemas/OrderResource")
+     *              )
      *          )
      *      ),
      *      @OA\Response(response=401, description="Unauthenticated")

@@ -1,0 +1,630 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "Exchange Mini API",
+        "description": "API documentation for the Exchange Mini project...",
+        "contact": {
+            "email": "support@exchange-mini.com"
+        },
+        "version": "1.0.0"
+    },
+    "paths": {
+        "/api/register": {
+            "post": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Register a new user",
+                "description": "Creates a new user account and returns the user data.",
+                "operationId": "registerUser",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/RegisterRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "User registered successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UserResource"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/login": {
+            "post": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Log in a user",
+                "description": "Logs in a user and returns an API token and user data.",
+                "operationId": "loginUser",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/LoginRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful login",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "token": {
+                                            "type": "string",
+                                            "example": "1|aBcDeFgHiJkLmNoPqRsTuVwXyZ"
+                                        },
+                                        "user": {
+                                            "properties": {
+                                                "data": {
+                                                    "$ref": "#/components/schemas/UserResource"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Invalid credentials"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/logout": {
+            "post": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Log out the current user",
+                "description": "Invalidates the user's current API token.",
+                "operationId": "logoutUser",
+                "responses": {
+                    "200": {
+                        "description": "Successful logout",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Logged out"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/orders": {
+            "get": {
+                "tags": [
+                    "Orders"
+                ],
+                "summary": "Get open orders for the order book",
+                "description": "Returns a list of all open buy and sell orders. Can be filtered by symbol.",
+                "operationId": "getOrderBook",
+                "parameters": [
+                    {
+                        "name": "symbol",
+                        "in": "query",
+                        "description": "Filter orders by symbol (e.g., BTC, ETH)",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/OrderResource"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Orders"
+                ],
+                "summary": "Create a new limit order",
+                "description": "Places a new buy or sell limit order, locking the necessary funds or assets.",
+                "operationId": "createOrder",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/StoreOrderRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Order created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "order": {
+                                            "$ref": "#/components/schemas/OrderResource"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation error or insufficient balance",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "oneOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ValidationError"
+                                        },
+                                        {
+                                            "properties": {
+                                                "message": {
+                                                    "type": "string",
+                                                    "example": "Insufficient USD balance"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/orders/{id}/cancel": {
+            "post": {
+                "tags": [
+                    "Orders"
+                ],
+                "summary": "Cancel an open order",
+                "description": "Cancels an open order and releases any locked funds or assets.",
+                "operationId": "cancelOrder",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID of the order to cancel",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Order cancelled successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/OrderResource"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Order not open",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Order not open"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Order not found"
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/orders/all": {
+            "get": {
+                "tags": [
+                    "Orders"
+                ],
+                "summary": "Get all of the authenticated user's orders",
+                "description": "Returns a list of all orders (open, filled, cancelled) for the authenticated user.",
+                "operationId": "getUserOrders",
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/OrderResource"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/profile": {
+            "get": {
+                "tags": [
+                    "Profile"
+                ],
+                "summary": "Get user profile and balances",
+                "description": "Returns the authenticated user's profile, including USD balance and asset holdings.",
+                "operationId": "getProfile",
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UserResource"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "LoginRequest": {
+                "title": "LoginRequest",
+                "description": "User login request body",
+                "properties": {
+                    "email": {
+                        "type": "string",
+                        "format": "email",
+                        "example": "john.doe@example.com"
+                    },
+                    "password": {
+                        "type": "string",
+                        "format": "password",
+                        "example": "password123"
+                    }
+                },
+                "type": "object"
+            },
+            "RegisterRequest": {
+                "title": "RegisterRequest",
+                "description": "User registration request body",
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "example": "John Doe"
+                    },
+                    "email": {
+                        "type": "string",
+                        "format": "email",
+                        "example": "john.doe@example.com"
+                    },
+                    "password": {
+                        "type": "string",
+                        "format": "password",
+                        "example": "password123"
+                    }
+                },
+                "type": "object"
+            },
+            "StoreOrderRequest": {
+                "title": "StoreOrderRequest",
+                "description": "Request body for creating a new order",
+                "required": [
+                    "symbol",
+                    "side",
+                    "price",
+                    "amount"
+                ],
+                "properties": {
+                    "symbol": {
+                        "type": "string",
+                        "enum": [
+                            "BTC",
+                            "ETH"
+                        ],
+                        "example": "BTC"
+                    },
+                    "side": {
+                        "type": "string",
+                        "enum": [
+                            "buy",
+                            "sell"
+                        ],
+                        "example": "buy"
+                    },
+                    "price": {
+                        "description": "Price per unit",
+                        "type": "number",
+                        "format": "float",
+                        "example": "50000.00"
+                    },
+                    "amount": {
+                        "description": "Amount of the asset to trade",
+                        "type": "number",
+                        "format": "float",
+                        "example": "0.1"
+                    }
+                },
+                "type": "object"
+            },
+            "ValidationError": {
+                "title": "Validation Error",
+                "description": "Standard validation error response",
+                "properties": {
+                    "message": {
+                        "type": "string",
+                        "example": "The given data was invalid."
+                    },
+                    "errors": {
+                        "type": "object",
+                        "example": {
+                            "email": [
+                                "The email field is required."
+                            ]
+                        }
+                    }
+                },
+                "type": "object"
+            },
+            "AssetResource": {
+                "title": "AssetResource",
+                "description": "Asset resource representation",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "symbol": {
+                        "type": "string",
+                        "example": "BTC"
+                    },
+                    "amount": {
+                        "type": "string",
+                        "format": "decimal",
+                        "example": "1.50000000"
+                    },
+                    "lockedAmount": {
+                        "type": "string",
+                        "format": "decimal",
+                        "example": "0.50000000"
+                    }
+                },
+                "type": "object"
+            },
+            "OrderResource": {
+                "title": "OrderResource",
+                "description": "Order resource representation",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "userId": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "symbol": {
+                        "type": "string",
+                        "example": "BTC"
+                    },
+                    "side": {
+                        "type": "string",
+                        "enum": [
+                            "buy",
+                            "sell"
+                        ],
+                        "example": "buy"
+                    },
+                    "price": {
+                        "type": "string",
+                        "format": "decimal",
+                        "example": "50000.00000000"
+                    },
+                    "amount": {
+                        "type": "string",
+                        "format": "decimal",
+                        "example": "0.10000000"
+                    },
+                    "status": {
+                        "description": "1: open, 2: filled, 3: cancelled",
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "lockedUsd": {
+                        "type": "string",
+                        "format": "decimal",
+                        "example": "5000.00000000"
+                    },
+                    "lockedAsset": {
+                        "type": "string",
+                        "format": "decimal",
+                        "example": "0.00000000"
+                    },
+                    "createdAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "updatedAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "type": "object"
+            },
+            "UserResource": {
+                "title": "UserResource",
+                "description": "User resource representation",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "name": {
+                        "type": "string",
+                        "example": "John Doe"
+                    },
+                    "email": {
+                        "type": "string",
+                        "format": "email",
+                        "example": "john.doe@example.com"
+                    },
+                    "balanceUsd": {
+                        "type": "string",
+                        "format": "decimal",
+                        "example": "10000.00000000"
+                    },
+                    "assets": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/AssetResource"
+                        }
+                    }
+                },
+                "type": "object"
+            }
+        },
+        "securitySchemes": {
+            "bearerAuth": {
+                "type": "apiKey",
+                "description": "Enter token in format (Bearer <token>)",
+                "name": "Authorization",
+                "in": "header"
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "Authentication",
+            "description": "Authentication"
+        },
+        {
+            "name": "Orders",
+            "description": "Orders"
+        },
+        {
+            "name": "Profile",
+            "description": "Profile"
+        }
+    ],
+    "security": [
+        {
+            "bearerAuth": []
+        }
+    ]
+}
