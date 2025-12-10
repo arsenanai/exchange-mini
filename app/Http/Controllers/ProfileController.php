@@ -18,7 +18,7 @@ class ProfileController extends Controller
      *      tags={"Profile"},
      *      summary="Get user profile and balances",
      *      description="Returns the authenticated user's profile, including USD balance and asset holdings.",
-     *      security={{"sanctum":{}}},
+     *      security={{"bearerAuth":{}}},
      *
      *      @OA\Response(
      *          response=200,
