@@ -13,7 +13,6 @@ use Illuminate\Foundation\Http\FormRequest;
  *     description="User login request body"
  * )
  */
-
 class LoginRequest extends FormRequest
 {
     /**

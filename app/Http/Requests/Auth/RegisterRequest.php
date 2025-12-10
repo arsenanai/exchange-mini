@@ -13,7 +13,6 @@ use Illuminate\Foundation\Http\FormRequest;
  *     description="User registration request body"
  * )
  */
-
 class RegisterRequest extends FormRequest
 {
     /**

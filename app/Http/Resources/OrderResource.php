@@ -13,6 +13,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
  *     title="OrderResource",
  *     description="Order resource representation",
  *     type="object",
+ *
  *     @OA\Property(property="id", type="integer", example=1),
  *     @OA\Property(property="userId", type="integer", example=1),
  *     @OA\Property(property="symbol", type="string", example="BTC"),
@@ -38,17 +39,17 @@ class OrderResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'id'         => $this->id,
-            'userId'     => $this->user_id,
-            'symbol'     => $this->symbol,
-            'side'       => $this->side,
-            'price'      => $this->price,
-            'amount'     => $this->amount,
-            'status'     => $this->status,
-            'lockedUsd'  => $this->locked_usd,
-            'lockedAsset'=> $this->locked_asset,
-            'createdAt'  => $this->created_at,
-            'updatedAt'  => $this->updated_at,
+            'id' => $this->id,
+            'userId' => $this->user_id,
+            'symbol' => $this->symbol,
+            'side' => $this->side,
+            'price' => $this->price,
+            'amount' => $this->amount,
+            'status' => $this->status,
+            'lockedUsd' => $this->locked_usd,
+            'lockedAsset' => $this->locked_asset,
+            'createdAt' => $this->created_at,
+            'updatedAt' => $this->updated_at,
         ];
     }
 }

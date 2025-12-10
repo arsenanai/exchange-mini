@@ -9,6 +9,7 @@ namespace App\Http\Resources\Api\V1;
  *     schema="ValidationError",
  *     title="Validation Error",
  *     description="Standard validation error response",
+ *
  *     @OA\Property(
  *         property="message",
  *         type="string",
@@ -21,6 +22,4 @@ namespace App\Http\Resources\Api\V1;
  *     )
  * )
  */
-class ValidationErrorResource
-{
-}
+class ValidationErrorResource {}

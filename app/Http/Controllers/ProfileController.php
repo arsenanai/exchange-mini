@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
-use App\Http\Resources\AssetResource;
 use App\Http\Resources\UserResource;
 use App\Models\Asset;
 use Illuminate\Http\Request;
@@ -23,6 +22,7 @@ class ProfileController extends Controller
      *      @OA\Response(
      *          response=200,
      *          description="Successful operation",
+     *
      *          @OA\JsonContent(ref="#/components/schemas/UserResource")
      *      ),
      *

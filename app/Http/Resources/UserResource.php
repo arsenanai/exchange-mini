@@ -13,6 +13,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
  *     title="UserResource",
  *     description="User resource representation",
  *     type="object",
+ *
  *     @OA\Property(property="id", type="integer", example=1),
  *     @OA\Property(property="name", type="string", example="John Doe"),
  *     @OA\Property(property="email", type="string", format="email", example="john.doe@example.com"),
@@ -20,19 +21,15 @@ use Illuminate\Http\Resources\Json\JsonResource;
  *     @OA\Property(
  *         property="assets",
  *         type="array",
+ *
  *         @OA\Items(ref="#/components/schemas/AssetResource")
  *     )
  * )
+ *
+ * @mixin \App\Models\User
  */
 class UserResource extends JsonResource
 {
-    /**
-     * @OA\Property(property="id", type="integer", example=1)
-     * @OA\Property(property="name", type="string", example="John Doe")
-     * @OA\Property(property="email", type="string", format="email", example="john.doe@example.com")
-     * @OA\Property(property="balanceUsd", type="string", format="decimal", example="10000.00000000")
-     * @OA\Property(property="assets", type="array", @OA\Items(ref="#/components/schemas/AssetResource"))
-     */
     /**
      * Transform the resource into an array.
      *

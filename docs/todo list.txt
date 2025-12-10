@@ -23,6 +23,7 @@ Backend (Laravel API):
     *   Write comprehensive Unit and Feature tests for all core logic (e.g., MatchingService, Controllers, Models).
 5.  [x] Implement OpenAPI (Swagger) Documentation:
     *   Install `darkaonline/l5-swagger` and add annotations to generate `openapi.yaml`.
+    *   [x] Generate and run `api-test.sh` to produce `api-output.log` and verify that the live API responses match the generated OpenAPI specification.
 
 Frontend (Vue.js SPA):
 ----------------------

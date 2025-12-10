@@ -1,54 +1,116 @@
 # Exchange Mini
 
-Limit-order mini exchange engine with Laravel + Vue + Pusher broadcasting. Focuses on:
-- Atomic matching with DB transactions and `SELECT ... FOR UPDATE` row locks
-- Race-safe balance/asset locking
-- Consistent commission: 1.5% of USD value; buyer pays USD fee, seller pays asset fee
-- Real-time updates to both counterparties via private channels
+A full-stack, limit-order mini exchange engine built with Laravel and Vue.js. This project demonstrates best practices for building real-time, financially-oriented applications with a focus on data integrity, concurrency safety, and code quality.
 
-## Stack
-- Backend: Laravel (Sanctum for auth, Pusher for broadcasting)
-- DB: MySQL
-- Frontend: Vue 3 (Composition API), Tailwind, Laravel Echo + Pusher
+## Core Features
+
+- **User Authentication**: Secure registration, login, and session management using Laravel Sanctum.
+- **Atomic Order & Balance Management**: Race-condition-safe creation and cancellation of orders using database transactions and `SELECT ... FOR UPDATE` row locks.
+- **Asynchronous Order Matching**: A queue-based job system for matching buy and sell orders without blocking API responses.
+- **Real-Time Updates**: Instant UI updates on successful matches via private Pusher channels, powered by Laravel Echo.
+- **Consistent API**: A `camelCase` JSON API enforced by Laravel's API Resources.
+- **Robust Validation**: Thin controllers and strong validation using Form Request classes.
+- **API Documentation**: A complete OpenAPI (Swagger) specification generated directly from code annotations.
+
+## Tech Stack
+
+- **Backend**: Laravel 11, PHP 8.2
+- **Frontend**: Vue 3 (Composition API), Vite, Tailwind CSS
+- **Database**: MySQL / PostgreSQL
+- **Real-time**: Pusher via Laravel Broadcasting & Laravel Echo
+- **Testing**: Pest (Backend), Vitest (Frontend)
+- **Code Quality**: Laravel Pint (Formatting), Larastan (Static Analysis)
 
 ## Setup
 
-1. `composer install`
-2. Configure `.env` with your database credentials and Pusher keys. You will also need to add `VITE_PUSHER_APP_KEY` and `VITE_PUSHER_APP_CLUSTER` for the frontend.
-3. `php artisan key:generate`
-4. `php artisan migrate`
-5. `npm install`
-6. `npm run build`
-7. Run the development server: `php artisan serve`
-8. In a separate terminal, run the Vite dev server: `npm run dev`
-9. In another terminal, run the queue worker: `php artisan queue:work`
+### Prerequisites
+- PHP >= 8.2
+- Composer
+- Node.js & npm
+- A database server (e.g., MySQL, PostgreSQL)
 
-### Auth
-- Register/login via `/api/register`, `/api/login`. The frontend has a simple login page.
-- Sanctum bearer token is stored in localStorage.
+### 1. Installation
 
-### API Endpoints
-- `GET /api/profile` — USD + asset balances
-- `GET /api/orders?symbol=BTC` — Orderbook (open orders)
-- `GET /api/orders/all` — User orders (open + filled + cancelled)
-- `POST /api/orders` — Create limit order (locks funds/assets, attempts match)
-- `POST /api/orders/{id}/cancel` — Cancel open order (releases locks)
+A convenient setup script is included to handle most of the installation steps.
 
-### Matching Rules
-- Full match only (no partials)
-- BUY matches first SELL where `sell.price <= buy.price`
-- SELL matches first BUY where `buy.price >= sell.price`
-- Commission = 1.5% USD volume
-  - Buyer pays USD fee at match time (deducted from balance)
-  - Seller pays asset fee (deducted from delivered asset to buyer)
-- Real-time broadcast `OrderMatched` on private channels `user.{id}` for both sides.
+```bash
+# Clone the repository
+git clone https://github.com/your-username/exchange-mini.git
+cd exchange-mini
 
-### Notes
-- An initial match is attempted synchronously in `OrderController::create`. A job is also dispatched to the `matching` queue to handle further matching possibilities, ensuring responsiveness.
-- Prices/amounts use decimal(18,8) and bc math for precision.
-- Cancelling releases locked USD or asset atomically.
-- Frontend listens to `OrderMatched` and refreshes profile, orders, and orderbook.
+# Run the automated setup script
+composer setup
+```
 
-## Security
-- Private channels require auth via Sanctum bearer token.
-- Basic validation on inputs and ownership checks on cancel.
+This script will:
+- Install Composer dependencies.
+- Create a `.env` file from `.env.example`.
+- Generate an application key.
+- Run database migrations.
+- Install NPM dependencies.
+- Build frontend assets.
+
+### 2. Environment Configuration
+
+You must manually edit the `.env` file to add your database and Pusher credentials.
+
+```ini
+# .env
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=exchange_mini
+DB_USERNAME=root
+DB_PASSWORD=
+
+PUSHER_APP_ID="..."
+PUSHER_APP_KEY="..."
+PUSHER_APP_SECRET="..."
+PUSHER_HOST=
+PUSHER_PORT=443
+PUSHER_SCHEME=https
+PUSHER_APP_CLUSTER="mt1"
+
+VITE_PUSHER_APP_KEY="${PUSHER_APP_KEY}"
+VITE_PUSHER_APP_CLUSTER="${PUSHER_APP_CLUSTER}"
+```
+
+### 3. Running the Application
+
+A single command starts the PHP server, Vite dev server, and queue worker concurrently.
+
+```bash
+# Start all development services
+composer run dev
+```
+
+Your application will be available at `http://localhost:8000`.
+
+## Development & Quality Tools
+
+The project is equipped with tools to maintain high code quality.
+
+### Code Quality & Testing
+
+```bash
+# Format code with Laravel Pint (PSR-12)
+composer format
+
+# Run static analysis with Larastan
+composer analyse
+
+# Run the backend test suite with Pest
+composer test
+```
+
+### API Documentation & Verification
+
+The project uses OpenAPI annotations to generate a browsable documentation UI. After running the server, you can view the interactive API documentation at `http://localhost:8000/api/documentation`.
+
+```bash
+# Generate or update the OpenAPI specification
+php artisan l5-swagger:generate
+
+# Verify live API endpoints against the OpenAPI spec
+./tests/api-test.sh
+```

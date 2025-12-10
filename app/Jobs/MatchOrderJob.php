@@ -21,6 +21,8 @@ class MatchOrderJob implements ShouldQueue
     public function handle(MatchingService $matcher): void
     {
         $order = Order::find($this->orderId);
-        if ($order) $matcher->tryMatch($order);
+        if ($order) {
+            $matcher->tryMatch($order);
+        }
     }
 }

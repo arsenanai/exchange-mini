@@ -6,12 +6,12 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\Order\StoreOrderRequest;
 use App\Http\Resources\OrderResource;
+use App\Jobs\MatchOrderJob;
 use App\Models\Asset;
 use App\Models\Order;
 use App\Services\MatchingService;
-use App\Jobs\MatchOrderJob;
-use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\DB;
 
@@ -24,20 +24,26 @@ class OrderController extends Controller
      *      tags={"Orders"},
      *      summary="Get open orders for the order book",
      *      description="Returns a list of all open buy and sell orders. Can be filtered by symbol.",
+     *
      *      @OA\Parameter(
      *          name="symbol",
      *          in="query",
      *          description="Filter orders by symbol (e.g., BTC, ETH)",
      *          required=false,
+     *
      *          @OA\Schema(type="string")
      *      ),
+     *
      *      @OA\Response(
      *          response=200,
      *          description="Successful operation",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(
      *                  property="data",
      *                  type="array",
+     *
      *                  @OA\Items(ref="#/components/schemas/OrderResource")
      *              )
      *          )
@@ -48,8 +54,11 @@ class OrderController extends Controller
     {
         $symbol = $req->query('symbol');
         $query = Order::query()->where('status', Order::STATUS_OPEN);
-        if ($symbol) $query->where('symbol', $symbol);
+        if ($symbol) {
+            $query->where('symbol', $symbol);
+        }
         $orders = $query->orderBy('created_at', 'asc')->get();
+
         return OrderResource::collection($orders);
     }
 
@@ -61,29 +70,39 @@ class OrderController extends Controller
      *      summary="Create a new limit order",
      *      description="Places a new buy or sell limit order, locking the necessary funds or assets.",
      *      security={{"bearerAuth":{}}},
+     *
      *      @OA\RequestBody(
      *          required=true,
+     *
      *          @OA\JsonContent(ref="#/components/schemas/StoreOrderRequest")
      *      ),
+     *
      *      @OA\Response(
      *          response=200,
      *          description="Order created successfully",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="order", ref="#/components/schemas/OrderResource")
      *          )
      *      ),
+     *
      *      @OA\Response(
      *          response=422,
      *          description="Validation error or insufficient balance",
+     *
      *          @OA\JsonContent(
      *              oneOf={
+     *
      *                  @OA\Schema(ref="#/components/schemas/ValidationError"),
      *                  @OA\Schema(
+     *
      *                      @OA\Property(property="message", type="string", example="Insufficient USD balance")
      *                  )
      *              }
      *          )
      *      ),
+     *
      *      @OA\Response(response=401, description="Unauthenticated")
      * )
      */
@@ -122,7 +141,7 @@ class OrderController extends Controller
                     ->lockForUpdate()
                     ->first();
 
-                if (!$asset || bccomp((string) $asset->amount, (string) $data['amount'], 8) === -1) {
+                if (! $asset || bccomp((string) $asset->amount, (string) $data['amount'], 8) === -1) {
                     return response()->json(['message' => 'Insufficient asset balance'], 422);
                 }
                 // Lock asset
@@ -145,6 +164,7 @@ class OrderController extends Controller
             // Try match immediately
             // $match = $matcher->tryMatch($order);
             dispatch(new MatchOrderJob($order->id))->onQueue('matching');
+
             return $order;
         }, 3);
 
@@ -165,25 +185,33 @@ class OrderController extends Controller
      *      summary="Cancel an open order",
      *      description="Cancels an open order and releases any locked funds or assets.",
      *      security={{"bearerAuth":{}}},
+     *
      *      @OA\Parameter(
      *          name="id",
      *          in="path",
      *          description="ID of the order to cancel",
      *          required=true,
+     *
      *          @OA\Schema(type="integer")
      *      ),
+     *
      *      @OA\Response(
      *          response=200,
      *          description="Order cancelled successfully",
+     *
      *          @OA\JsonContent(ref="#/components/schemas/OrderResource")
      *      ),
+     *
      *      @OA\Response(
      *          response=422,
      *          description="Order not open",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string", example="Order not open")
      *          )
      *      ),
+     *
      *      @OA\Response(response=404, description="Order not found"),
      *      @OA\Response(response=401, description="Unauthenticated")
      * )
@@ -195,7 +223,7 @@ class OrderController extends Controller
             $user = $req->user();
             $order = Order::where('id', $id)->lockForUpdate()->first();
 
-            if (!$order || $order->user_id !== $user->id) {
+            if (! $order || $order->user_id !== $user->id) {
                 return response()->json(['message' => 'Order not found'], 404);
             }
             if ($order->status !== Order::STATUS_OPEN) {
@@ -237,17 +265,22 @@ class OrderController extends Controller
      *      summary="Get all of the authenticated user's orders",
      *      description="Returns a list of all orders (open, filled, cancelled) for the authenticated user.",
      *      security={{"bearerAuth":{}}},
+     *
      *      @OA\Response(
      *          response=200,
      *          description="Successful operation",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(
      *                  property="data",
      *                  type="array",
+     *
      *                  @OA\Items(ref="#/components/schemas/OrderResource")
      *              )
      *          )
      *      ),
+     *
      *      @OA\Response(response=401, description="Unauthenticated")
      * )
      */
@@ -258,6 +291,7 @@ class OrderController extends Controller
         $orders = Order::where('user_id', $user->id)
             ->orderBy('created_at', 'desc')
             ->get();
+
         return OrderResource::collection($orders);
     }
 }

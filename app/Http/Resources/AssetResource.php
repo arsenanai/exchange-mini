@@ -13,6 +13,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
  *     title="AssetResource",
  *     description="Asset resource representation",
  *     type="object",
+ *
  *     @OA\Property(property="id", type="integer", example=1),
  *     @OA\Property(property="symbol", type="string", example="BTC"),
  *     @OA\Property(property="amount", type="string", format="decimal", example="1.50000000"),

@@ -1,12 +1,15 @@
 <?php
 
 return [
+
     'defaults' => [
         'scanOptions' => [
             'paths' => [base_path('app')],
         ],
+
         'routes' => [
-            'docs' => 'docs',
+            // These are the default route names used internally by L5-Swagger
+            'docs' => 'api-docs',
             'oauth2_callback' => 'api/oauth2-callback',
             'middleware' => [
                 'api' => [],
@@ -16,12 +19,14 @@ return [
             ],
             'group_options' => [],
         ],
+
         'paths' => [
             'docs' => storage_path('api-docs'),
             'docs_yaml' => 'openapi.yaml',
             'views' => base_path('resources/views/vendor/l5-swagger'),
             'base' => env('L5_SWAGGER_BASE_PATH', null),
         ],
+
         'securityDefinitions' => [
             'securitySchemes' => [
                 'bearerAuth' => [
@@ -35,12 +40,14 @@ return [
                 ['bearerAuth' => []],
             ],
         ],
+
         'generate_always' => env('L5_SWAGGER_GENERATE_ALWAYS', false),
         'generate_yaml_copy' => env('L5_SWAGGER_GENERATE_YAML_COPY', false),
         'proxy' => false,
         'additional_config_url' => null,
         'operations_sort' => env('L5_SWAGGER_OPERATIONS_SORT', null),
         'validator_url' => null,
+
         'ui' => [
             'display' => [
                 'dark_mode' => env('L5_SWAGGER_UI_DARK_MODE', false),
@@ -54,25 +61,32 @@ return [
                 ],
             ],
         ],
-        'constants' => [
-        ],
+
+        'constants' => [],
     ],
+
     'documentations' => [
         'default' => [
             'api' => [
                 'title' => 'Exchange Mini API',
             ],
+
             'routes' => [
+                // UI page route
                 'api' => 'api/documentation',
+                // JSON spec file route
+                'docs' => 'api-docs',
             ],
+
             'paths' => [
                 'use_absolute_path' => env('L5_SWAGGER_USE_ABSOLUTE_PATH', true),
                 'swagger_ui_assets_path' => env('L5_SWAGGER_UI_ASSETS_PATH', 'vendor/swagger-api/swagger-ui/dist/'),
+                'docs_json' => 'api-docs.json',
                 'annotations' => [
                     base_path('app'),
                 ],
-                'excludes' => [], // You can exclude directories here if needed
-                'format_to_use_for_docs' => env('L5_SWAGGER_FORMAT_TO_USE_FOR_DOCS', 'yaml'),
+                'excludes' => [],
+                'format_to_use_for_docs' => env('L5_SWAGGER_FORMAT_TO_USE_FOR_DOCS', 'json'),
             ],
         ],
     ],
