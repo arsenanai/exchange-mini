@@ -1,0 +1,99 @@
+As part of our hiring process, we would like you to complete the following technical assignment. The goal is to assess your Full Stack development skills (Laravel API & Vue.js) with a focus on financial data integrity, concurrency safety, scalable balance/asset management, and real-time systems.
+
+🛠 Technology Stack
+Backend: Laravel (latest stable preferred)
+Frontend: Vue.js (latest stable preferred, Composition API encouraged)
+Database: MySQL or PostgreSQL
+Real-time: Pusher via Laravel Broadcasting
+📌 Project Requirements
+1. Backend – Laravel API
+Required Database Tables
+You must include at least:
+
+users - Default Laravel columns + balance (decimal, USD funds)
+assets - user_id, symbol (e.g., BTC, ETH), amount (decimal, available asset), locked_amount (decimal, reserved for open sell orders)
+orders - user_id, symbol, side (buy/sell), price (decimal), amount (decimal), status (open=1, filled=2, cancelled=3), Timestamps
+trades (Optional) - You may store executed matches here for bonus points, but not required
+Mandatory API Endpoints
+Method	Endpoint	Purpose
+GET	/api/profile	Returns authenticated user's USD balance + asset balances
+GET	/api/orders?symbol=BTC	Returns all open orders for orderbook (buy & sell)
+POST	/api/orders	Creates a limit order
+POST	/api/orders/{id}/cancel	Cancels an open order and releases locked USD or assets
+POST	Internal matching or job-based match trigger	Matches new orders with the first valid counter order
+Core Business Logic
+Buy Order:
+
+Check if users.balance >= amount * price
+Deduct amount * price from users.balance
+Mark order as open with locked USD value
+Sell Order:
+
+Check if assets.amount >= amount
+Move amount into assets.locked_amount
+Mark order as open
+Matching Rules (Full Match Only – No Partial Required):
+New BUY → match with first SELL where sell.price <= buy.price
+New SELL → match with first BUY where buy.price >= sell.price
+Commission (Must Stay):
+Commission = 1.5% of the matched USD value
+
+Example: 0.01 BTC @ 95,000 USD = 950 USD volume. Fee = 950 * 0.015 = 14.25 USD. USD fee must be deducted from buyer (sender) and/or asset fee from seller — your choice, but must be consistent.
+
+2. Real-Time Integration (Mandatory)
+On every successful match, broadcast OrderMatched event via Pusher
+Deliver to both parties using private channels: private-user.{id}
+Front-end must update balance, asset and order list instantly without refresh
+3. Frontend – Vue.js (Composition API) + Tailwind Latest Version
+You only need 2 custom screens + Login/Logout etc.:
+
+A) Limit Order Form
+
+Inputs: Symbol (BTC/ETH dropdown), Side (Buy/Sell), Price, Amount
+
+Submit button: Place Order
+
+B) Orders & Wallet Overview
+
+Sections:
+
+USD and Asset balances (via /api/profile)
+All past orders (open + filled + cancelled)
+Orderbook for selected symbol
+Listen for OrderMatched event and: patch new trade into UI, update balance and asset, update order status in list
+Bonus (optional): order filtering (by symbol/side/status), toast/alerts, volume calculation preview
+
+4. Evaluation Focus
+We will review:
+
+Balance & asset race safety
+Atomic execution
+Commission correctness
+Real-time listener stability
+Clean repository, security validation, fast setup, meaningful git commits
+5. Submission
+Once you have completed the assessment:
+
+Push the project to a Git provider (GitHub/GitLab)
+Include a README.md with setup steps
+Submit the repository link using the form below
+
+Answers to follow-ups:
+1) Question: Matching Price Execution: The assignment states, "New BUY → match with first SELL where sell.price <= buy.price". Your MatchingService executes the trade at the seller's price ($price = $sell->price;). This is a standard and logical approach (the "market taker" accepts the "market maker's" price). Is this the intended behavior, or would you prefer a different rule, such as executing at the midpoint or the new order's price? Your current implementation is excellent, but it's a detail worth confirming.
+Answer: just use any standart matching logic, keep it simple
+2) Question:
+Partial Fills: The assignment explicitly says, "Full Match Only – No Partial Required." This simplifies the logic significantly. For a future iteration, would the product owner want to support partial fills (i.e., a large order being filled by multiple smaller orders)? Knowing this would influence the initial design of the matching engine to make it more extensible later. Your current code is perfect for the "full match only" rule.
+Answer: for this assignment task scope do not consider partial fills at all, keep it simple
+3) Question: Handling of Buyer's Refund on Price Improvement: When a buyer places an order for 1 BTC at $50,000, their balance is reduced by $50,000. If they match with a seller at $49,900, the actual usdValue is $49,900. Your current logic correctly handles the asset transfer and fees, but the $100 difference isn't explicitly refunded to the buyer's balance. Was the intention for this "price improvement" saving to be returned to the buyer?
+Answer: I don't know, make sure to keep one standart in the assignment project
+
+Personal comments:
+1) use PL linters with typesafety, for PHP - Larastan with strict datatypes, for Typescript - eslint, make sure that I can run linter in terminal and configure VSCode to support that as well.
+2) use PL formatters, for PHP - Pint with PSR-12, for Typescript - any standart formatter like ecmascript.
+3) cover code with Unit/Integration/E2E tests. For Laravel use Pest as testing framework with Chrome driver, and Dusk as E2E. For Vue use vitest for unit testing.
+4) divide files for logical parts, keep logic in Service files, keep Controllers thin, use synchronous models on backend and frontend to make same convention, use camelCase in all project specific requests and responses, you can keep laravel's shipped requests as is, use Response and Requests classes for that.
+5) make sure you add terminal outputs in tests, in order to see what is going wrong.
+6) Solidify the API Contract with OpenAPI (Swagger) - We need to generate an openapi.yaml specification directly from our PHP code using annotations.
+7) Automate Quality Checks with a CI Pipeline - We need to create a simple Continuous Integration (CI) workflow using GitHub Actions. This will automatically run our quality checks (formatter, linter, tests) on every single push
+8) Frontend State Management with Pinia - use pinia as state management in frontend
+9) make sure to use up-to-date stable versions in all dependencies, as well as consider only fresh documentation versions

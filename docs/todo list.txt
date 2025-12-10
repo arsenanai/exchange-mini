@@ -1,0 +1,53 @@
+Project To-Do List
+==================
+
+This list outlines the remaining tasks to bring the Exchange Mini project to a high standard, incorporating best practices for code quality, testing, and developer experience.
+
+Backend (Laravel API):
+----------------------
+1.  [x] Implement API Resources for `camelCase` Responses:
+    *   Create `UserResource` to format user data (e.g., `balance_usd` to `balanceUsd`).
+    *   Create `AssetResource` to format asset data (e.g., `locked_amount` to `lockedAmount`).
+    *   Create `OrderResource` to format order data.
+    *   Apply these resources in `ProfileController`, `AuthController`, `OrderController`, and `OrderMatched` event.
+2.  [x] Refactor Controllers with Form Request Classes:
+    *   Create `RegisterRequest` for `AuthController::register`.
+    *   Create `LoginRequest` for `AuthController::login`.
+    *   Create `StoreOrderRequest` for `OrderController::create`.
+    *   Create `CancelOrderRequest` (if needed, or use route model binding for ID validation).
+3.  [x] Implement Static Analysis (Larastan):
+    *   Install `larastan/larastan`, configure `phpstan.neon`, and resolve issues.
+4.  [x] Migrate to Pest for Testing:
+    *   Install Pest.
+    *   [x] Convert existing PHPUnit tests to Pest syntax.
+    *   [x] Write comprehensive Unit and Feature tests for all core logic (e.g., MatchingService, Controllers, Models).
+5.  [ ] Implement OpenAPI (Swagger) Documentation:
+    *   Install `darkaonline/l5-swagger`.
+    *   Add OpenAPI annotations to all API controllers and models to generate `openapi.yaml`.
+    *   Ensure documentation accurately reflects API contracts (including `camelCase` fields).
+
+Frontend (Vue.js SPA):
+----------------------
+6.  [ ] Implement Pinia for State Management:
+    *   Create Pinia stores for user authentication, profile/balances, orders, and orderbook.
+    *   Integrate stores into Vue components.
+7.  [ ] Set up Frontend Testing (Vitest):
+    *   Install and configure Vitest.
+    *   Write Unit tests for Vue components and Pinia stores.
+8.  [ ] Migrate to TypeScript (Optional but Recommended for Type Safety):
+    *   Convert `.js` files to `.ts` and add type definitions.
+    *   Configure ESLint for TypeScript.
+
+Continuous Integration (CI):
+----------------------------
+9.  [ ] Finalize GitHub Actions CI Workflow:
+    *   Ensure the CI workflow runs Pint, Larastan (once implemented), PHP/Pest tests, and potentially frontend linters/tests.
+    *   Add a step to check OpenAPI spec validity if possible.
+
+General:
+--------
+10. [ ] E2E Testing (Dusk):
+    *   Install Laravel Dusk.
+    *   Write E2E tests for critical user flows (registration, login, placing/cancelling orders, matching).
+11. [ ] VSCode Configuration:
+    *   Provide `.vscode/settings.json` and `.vscode/extensions.json` for recommended extensions and settings (e.g., auto-formatting on save, Larastan integration).

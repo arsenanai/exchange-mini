@@ -1,0 +1,13 @@
+includes:
+    - ./vendor/larastan/larastan/extension.neon
+
+parameters:
+    level: 5 # You can adjust this level (0-9) for stricter checks
+    paths: # Only analyze the 'app' directory
+        - app/
+    bootstrapFiles:
+        - vendor/autoload.php
+
+    # Exclude the entire 'tests' directory from analysis
+    excludePaths:
+        - tests/
