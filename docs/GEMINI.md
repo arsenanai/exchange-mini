@@ -286,7 +286,7 @@ it('may reset the password', function () {
     $page->assertSee('Sign In')
         ->assertNoJavascriptErrors() // or ->assertNoConsoleLogs()
         ->click('Forgot Password?')
-        ->fill('email', 'nuno@laravel.com')
+        ->fill('email', 'person@email.com')
         ->click('Send Reset Link')
         ->assertSee('We have emailed your password reset link!')
 

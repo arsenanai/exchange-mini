@@ -6,16 +6,21 @@ namespace App\Http\Controllers;
 
 use OpenApi\Attributes as OA;
 
-#[OA\Info(
-    version: '1.0.0',
-    title: 'Exchange Mini API',
-    description: 'API documentation for the Exchange Mini project...',
-    contact: new OA\Contact(email: 'support@exchange-mini.com')
-)]
-#[OA\SecurityScheme(
-    securityScheme: 'bearerAuth',
-    type: 'http',
-    scheme: 'bearer',
+#[OA\OpenApi(
+    info: new OA\Info(
+        version: '1.0.0',
+        title: 'Exchange Mini API',
+        description: 'API documentation for the Exchange Mini project...',
+        contact: new OA\Contact(email: 'support@exchange-mini.com')
+    ),
+    components: new OA\Components(
+        securitySchemes: [
+            new OA\SecurityScheme(securityScheme: 'bearerAuth', type: 'http', scheme: 'bearer', bearerFormat: 'JWT'),
+        ]
+    ),
+    security: [
+        ['bearerAuth' => []],
+    ]
 )]
 abstract class Controller
 {

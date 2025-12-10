@@ -608,6 +608,11 @@
             }
         }
     },
+    "security": [
+        {
+            "bearerAuth": []
+        }
+    ],
     "tags": [
         {
             "name": "Authentication",
@@ -620,11 +625,6 @@
         {
             "name": "Profile",
             "description": "Profile"
-        }
-    ],
-    "security": [
-        {
-            "bearerAuth": []
         }
     ]
 }
