@@ -22,4 +22,6 @@ namespace App\Http\Resources\Api\V1;
  *     )
  * )
  */
-class ValidationErrorResource {}
+class ValidationErrorResource
+{
+}

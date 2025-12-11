@@ -64,6 +64,12 @@
         "analyse": [
             "php -d memory_limit=-1 vendor/bin/phpstan analyse"
         ],
+        "test:dusk": [
+            "php artisan dusk"
+        ],
+        "dusk:update": [
+            "php artisan dusk:chrome-driver"
+        ],
         "post-autoload-dump": [
             "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
             "@php artisan package:discover --ansi"

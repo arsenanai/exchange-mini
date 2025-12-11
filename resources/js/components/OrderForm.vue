@@ -5,38 +5,69 @@
         </h2>
         <form class="space-y-4" @submit.prevent="handlePlaceOrder">
             <div>
-                <label for="symbol" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Symbol</label>
+                <label
+                    for="symbol"
+                    class="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                    >Symbol</label
+                >
                 <select
-id="symbol" v-model="form.symbol" required
-                    class="mt-1 w-full rounded-md border border-gray-300 bg-gray-50 px-3 py-2 text-gray-900 shadow-sm dark:border-gray-600 dark:bg-gray-700 dark:text-white">
+                    id="symbol"
+                    v-model="form.symbol"
+                    required
+                    class="mt-1 w-full rounded-md border border-gray-300 bg-gray-50 px-3 py-2 text-gray-900 shadow-sm dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                >
                     <option value="BTC">BTC</option>
                     <option value="ETH">ETH</option>
                 </select>
             </div>
 
             <div>
-                <label for="side" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Side</label>
+                <label
+                    for="side"
+                    class="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                    >Side</label
+                >
                 <select
-id="side" v-model="form.side" required
-                    class="mt-1 w-full rounded-md border border-gray-300 bg-gray-50 px-3 py-2 text-gray-900 shadow-sm dark:border-gray-600 dark:bg-gray-700 dark:text-white">
+                    id="side"
+                    v-model="form.side"
+                    required
+                    class="mt-1 w-full rounded-md border border-gray-300 bg-gray-50 px-3 py-2 text-gray-900 shadow-sm dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                >
                     <option value="buy">Buy</option>
                     <option value="sell">Sell</option>
                 </select>
             </div>
 
             <div>
-                <label for="price" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Price
-                    (USD)</label>
+                <label
+                    for="price"
+                    class="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                    >Price (USD)</label
+                >
                 <input
-id="price" v-model="form.price" type="number" step="0.01" required
-                    class="mt-1 w-full rounded-md border border-gray-300 bg-gray-50 px-3 py-2 text-gray-900 shadow-sm dark:border-gray-600 dark:bg-gray-700 dark:text-white" />
+                    id="price"
+                    v-model.lazy="form.price"
+                    type="number"
+                    step="0.01"
+                    required
+                    class="mt-1 w-full rounded-md border border-gray-300 bg-gray-50 px-3 py-2 text-gray-900 shadow-sm dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                />
             </div>
 
             <div>
-                <label for="amount" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Amount</label>
+                <label
+                    for="amount"
+                    class="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                    >Amount</label
+                >
                 <input
-id="amount" v-model="form.amount" type="number" step="0.0001" required
-                    class="mt-1 w-full rounded-md border border-gray-300 bg-gray-50 px-3 py-2 text-gray-900 shadow-sm dark:border-gray-600 dark:bg-gray-700 dark:text-white" />
+                    id="amount"
+                    v-model.lazy="form.amount"
+                    type="number"
+                    step="0.0001"
+                    required
+                    class="mt-1 w-full rounded-md border border-gray-300 bg-gray-50 px-3 py-2 text-gray-900 shadow-sm dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                />
             </div>
 
             <div v-if="ordersStore.error" class="text-sm text-red-500">
@@ -48,8 +79,10 @@ id="amount" v-model="form.amount" type="number" step="0.0001" required
             </div>
 
             <button
-type="submit" :disabled="isSubmitting"
-                class="w-full rounded-md bg-indigo-600 px-4 py-2 font-medium text-white hover:bg-indigo-700 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50">
+                type="submit"
+                :disabled="isSubmitting"
+                class="w-full rounded-md bg-indigo-600 px-4 py-2 font-medium text-white hover:bg-indigo-700 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+            >
                 {{ isSubmitting ? 'Placing Order...' : 'Place Order' }}
             </button>
         </form>
@@ -69,11 +102,17 @@ const form = ref<NewOrder>({
     amount: '',
 });
 const successMessage = ref<string>('');
+const isSubmitting = ref(false);
 
 const handlePlaceOrder = async () => {
     successMessage.value = '';
+    isSubmitting.value = true;
     try {
-        await ordersStore.createOrder(form.value);
+        await ordersStore.createOrder({
+            ...form.value,
+            price: String(form.value.price),
+            amount: String(form.value.amount),
+        });
         successMessage.value = 'Order placed successfully!';
         // Reset form
         form.value.price = '';
@@ -81,7 +120,8 @@ const handlePlaceOrder = async () => {
         setTimeout(() => (successMessage.value = ''), 3000);
     } catch (error) {
         // Error is handled in the store and displayed via ordersStore.error
-        console.error('Failed to place order:', error);
+    } finally {
+        isSubmitting.value = false;
     }
 };
 </script>

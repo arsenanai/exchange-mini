@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Log;
 
 class MatchingService
 {
-    const COMMISSION_RATE = 0.015; // 1.5%
+    public const COMMISSION_RATE = 0.015; // 1.5%
 
     // Consistent fee policy:
     // - Buyer pays USD fee deducted from balance.

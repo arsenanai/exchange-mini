@@ -27,11 +27,11 @@ class Order extends Model
         'user_id', 'symbol', 'side', 'price', 'amount', 'status', 'locked_usd', 'locked_asset',
     ];
 
-    const STATUS_OPEN = 1;
+    public const STATUS_OPEN = 1;
 
-    const STATUS_FILLED = 2;
+    public const STATUS_FILLED = 2;
 
-    const STATUS_CANCELLED = 3;
+    public const STATUS_CANCELLED = 3;
 
     /**
      * Get the attributes that should be cast.

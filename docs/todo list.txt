@@ -37,7 +37,9 @@ Frontend (Vue.js SPA):
     *   [x] Convert all `.js` files to `.ts` and add type definitions.
     *   [x] Configure ESLint and Prettier for TypeScript.
     *   [x] Achieved 100% unit test coverage for stores.
-9.  [ ] Provide E2E test coverage with Laravel Dusk using Chrome web driver, make sure you are covering all needed logic that wroten in the assignment documents
+9.  [ ] E2E Testing (Dusk):
+    *   Install Laravel Dusk.
+    *   Write E2E tests for critical user flows (registration, login, placing/cancelling orders, matching).
 
 Continuous Integration (CI):
 ----------------------------
@@ -47,8 +49,5 @@ Continuous Integration (CI):
 
 General:
 --------
-10. [ ] E2E Testing (Dusk):
-    *   Install Laravel Dusk.
-    *   Write E2E tests for critical user flows (registration, login, placing/cancelling orders, matching).
 11. [ ] VSCode Configuration:
     *   Provide `.vscode/settings.json` and `.vscode/extensions.json` for recommended extensions and settings (e.g., auto-formatting on save, Larastan integration).

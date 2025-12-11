@@ -25,13 +25,18 @@ window.Echo = new Echo({
     forceTLS: true,
     authorizer: (channel: { name: string }) => {
         return {
-            authorize: (socketId: string, callback: (error: boolean, authData: object) => void) => {
+            authorize: (
+                socketId: string,
+                callback: (error: boolean, authData: object) => void,
+            ) => {
                 axios
                     .post('/broadcasting/auth', {
                         socket_id: socketId,
                         channel_name: channel.name,
                     })
-                    .then((response) => callback(false, response.data as object))
+                    .then((response) =>
+                        callback(false, response.data as object),
+                    )
                     .catch((error) => callback(true, error as object));
             },
         };

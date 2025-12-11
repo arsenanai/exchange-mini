@@ -21,7 +21,7 @@ beforeEach(function () {
         'amount' => '2.0',
     ]);
 
-    $this->matchingService = new MatchingService;
+    $this->matchingService = new MatchingService();
 });
 
 test('it can match a new buy order with an existing sell order', function () {

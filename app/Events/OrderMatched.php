@@ -17,7 +17,8 @@ class OrderMatched implements ShouldBroadcast
         public string $symbol,
         public string $price,
         public string $amount
-    ) {}
+    ) {
+    }
 
     public function broadcastOn(): array
     {

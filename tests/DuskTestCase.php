@@ -67,7 +67,7 @@ abstract class DuskTestCase extends BaseTestCase
         }
 
         // Default to Chrome (headless by default)
-        $options = (new ChromeOptions)->addArguments([
+        $options = (new ChromeOptions())->addArguments([
             '--disable-gpu',
             '--window-size=1920,1080',
         ]);
