@@ -27,15 +27,17 @@ Backend (Laravel API):
 
 Frontend (Vue.js SPA):
 ----------------------
-6.  [ ] Implement Pinia for State Management:
-    *   Create Pinia stores for user authentication, profile/balances, orders, and orderbook.
-    *   Integrate stores into Vue components.
-7.  [ ] Set up Frontend Testing (Vitest):
-    *   Install and configure Vitest.
-    *   Write Unit tests for Vue components and Pinia stores.
-8.  [ ] Migrate to TypeScript (Optional but Recommended for Type Safety):
-    *   Convert `.js` files to `.ts` and add type definitions.
-    *   Configure ESLint for TypeScript.
+6.  [x] Implement Pinia for State Management:
+    *   [x] Create Pinia stores for `auth`, `profile`, and `orders`.
+    *   [x] Integrate stores into Vue components (`Exchange`, `WalletOverview`, `OrderForm`, etc.).
+7.  [x] Set up Frontend Testing (Vitest):
+    *   [x] Install and configure Vitest.
+    *   [x] Write Unit tests for all Pinia stores.
+8.  [x] Migrate to TypeScript:
+    *   [x] Convert all `.js` files to `.ts` and add type definitions.
+    *   [x] Configure ESLint and Prettier for TypeScript.
+    *   [x] Achieved 100% unit test coverage for stores.
+9.  [ ] Provide E2E test coverage with Laravel Dusk using Chrome web driver, make sure you are covering all needed logic that wroten in the assignment documents
 
 Continuous Integration (CI):
 ----------------------------

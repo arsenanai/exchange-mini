@@ -7,26 +7,26 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-    - name: Setup PHP
-      uses: shivammathur/setup-php@v2
-      with:
-        php-version: '8.2'
-        extensions: bcmath, sqlite, pdo_sqlite
-        coverage: none
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: bcmath, sqlite, pdo_sqlite
+          coverage: none
 
-    - name: Install Composer dependencies
-      run: composer install --prefer-dist --no-progress --no-interaction
+      - name: Install Composer dependencies
+        run: composer install --prefer-dist --no-progress --no-interaction
 
-    - name: Prepare Laravel Application
-      run: |
-        cp .env.example .env
-        php artisan key:generate
+      - name: Prepare Laravel Application
+        run: |
+          cp .env.example .env
+          php artisan key:generate
 
-    - name: Run Code Formatter (Pint)
-      run: ./vendor/bin/pint --test
+      - name: Run Code Formatter (Pint)
+        run: ./vendor/bin/pint --test
 
-    - name: Run Tests (Pest)
-      run: php artisan test
+      - name: Run Tests (Pest)
+        run: php artisan test

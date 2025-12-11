@@ -1,0 +1,15 @@
+{
+    "extends": "@tsconfig/node20/tsconfig.json",
+    "include": [
+        "vite.config.js",
+        "vitest.config.ts",
+        "postcss.config.cjs",
+        "tailwind.config.ts"
+    ],
+    "compilerOptions": {
+        "composite": true,
+        "module": "ESNext",
+        "noEmit": true,
+        "types": ["node"]
+    }
+}

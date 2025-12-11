@@ -24,6 +24,7 @@ A full-stack, limit-order mini exchange engine built with Laravel and Vue.js. Th
 ## Setup
 
 ### Prerequisites
+
 - PHP >= 8.2
 - Composer
 - Node.js & npm
@@ -43,6 +44,7 @@ composer setup
 ```
 
 This script will:
+
 - Install Composer dependencies.
 - Create a `.env` file from `.env.example`.
 - Generate an application key.

@@ -1,9 +1,5 @@
 {
-    "agents": [
-        "gemini"
-    ],
-    "editors": [
-        "vscode"
-    ],
+    "agents": ["gemini"],
+    "editors": ["vscode"],
     "guidelines": []
 }

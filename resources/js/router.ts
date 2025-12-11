@@ -1,25 +1,26 @@
+import Exchange from '@/views/Exchange.vue';
+import Login from '@/views/Login.vue';
+import Register from '@/views/Register.vue';
 import { createRouter, createWebHistory } from 'vue-router';
-import Exchange from './views/Exchange.vue';
-import Login from './views/Login.vue';
-import Register from './views/Register.vue';
+import { useAuthStore } from './stores/auth';
 
 const routes = [
     {
         path: '/',
         name: 'Exchange',
         component: Exchange,
-        meta: { requiresAuth: true }
+        meta: { requiresAuth: true },
     },
     {
         path: '/login',
         name: 'Login',
-        component: Login
+        component: Login,
     },
     {
         path: '/register',
         name: 'Register',
-        component: Register
-    }
+        component: Register,
+    },
 ];
 
 const router = createRouter({
@@ -27,10 +28,13 @@ const router = createRouter({
     routes,
 });
 
-// Simple navigation guard (implement proper auth check)
 router.beforeEach((to, from, next) => {
-    const loggedIn = localStorage.getItem('token');
-    if (to.matched.some(record => record.meta.requiresAuth) && !loggedIn) {
+    const authStore = useAuthStore();
+
+    if (
+        to.matched.some((record) => record.meta.requiresAuth) &&
+        !authStore.isAuthenticated
+    ) {
         next('/login');
     } else {
         next();
