@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Enums\OrderStatuses;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -15,7 +16,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string $side
  * @property string $price
  * @property string $amount
- * @property int $status
+ * @property OrderStatuses $status
  * @property string $locked_usd
  * @property string $locked_asset
  */
@@ -26,12 +27,6 @@ class Order extends Model
     protected $fillable = [
         'user_id', 'symbol', 'side', 'price', 'amount', 'status', 'locked_usd', 'locked_asset',
     ];
-
-    public const STATUS_OPEN = 1;
-
-    public const STATUS_FILLED = 2;
-
-    public const STATUS_CANCELLED = 3;
 
     /**
      * Get the attributes that should be cast.
@@ -45,6 +40,7 @@ class Order extends Model
             'amount' => 'decimal:8',
             'locked_usd' => 'decimal:8',
             'locked_asset' => 'decimal:8',
+            'status' => OrderStatuses::class,
         ];
     }
 

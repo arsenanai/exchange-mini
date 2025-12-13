@@ -20,6 +20,7 @@
                     <input
                         id="name"
                         v-model="form.name"
+                        name="name"
                         type="text"
                         required
                         class="mt-1 w-full rounded-md border border-gray-300 bg-gray-50 px-3 py-2 text-gray-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
@@ -34,6 +35,7 @@
                     <input
                         id="email"
                         v-model="form.email"
+                        name="email"
                         type="email"
                         required
                         class="mt-1 w-full rounded-md border border-gray-300 bg-gray-50 px-3 py-2 text-gray-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
@@ -48,6 +50,7 @@
                     <input
                         id="password"
                         v-model="form.password"
+                        name="password"
                         type="password"
                         required
                         class="mt-1 w-full rounded-md border border-gray-300 bg-gray-50 px-3 py-2 text-gray-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"

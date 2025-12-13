@@ -1,10 +1,22 @@
 import { vi } from 'vitest'; // eslint-disable-line
 
+// Mock the router to prevent navigation errors in tests
 vi.mock('@/router', () => ({
     default: {
         push: vi.fn(),
     },
 }));
+
+// Mock the entire laravel-echo module
+vi.mock('laravel-echo', () => {
+    return {
+        // The default export is the Echo class. We mock its constructor.
+        default: vi.fn().mockImplementation(() => ({
+            private: vi.fn().mockReturnThis(),
+            listen: vi.fn(),
+        })),
+    };
+});
 
 // Mock localStorage for jsdom environment
 const localStorageMock = (function () {
@@ -27,13 +39,4 @@ const localStorageMock = (function () {
 
 Object.defineProperty(window, 'localStorage', {
     value: localStorageMock,
-});
-
-// Mock Laravel Echo for tests
-Object.defineProperty(window, 'Echo', {
-    value: {
-        private: vi.fn().mockReturnThis(),
-        listen: vi.fn(),
-    },
-    writable: true,
 });

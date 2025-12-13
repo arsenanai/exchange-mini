@@ -45,7 +45,49 @@ describe('WalletOverview.vue', () => {
         expect(wrapper.text()).toContain('Failed to load wallet');
     });
 
-    it('displays the user balances correctly', async () => {
+    it.each([
+        { input: '10000', expected: '$10,000.00' },
+        { input: '9876.54', expected: '$9,876.54' },
+        { input: '123.45', expected: '$123.45' },
+        { input: '0', expected: '$0.00' },
+        { input: '1234567.89', expected: '$1,234,567.89' },
+        { input: null, expected: '$0.00' },
+        { input: undefined, expected: '$0.00' },
+        { input: 'invalid-string', expected: '$0.00' },
+    ])(
+        'formats balance of "$input" as "$expected"',
+        async ({ input, expected }) => {
+            const wrapper = mount(WalletOverview, {
+                global: {
+                    plugins: [
+                        createTestingPinia({
+                            createSpy: vi.fn,
+                            initialState: {
+                                profile: {
+                                    user: {
+                                        id: 1,
+                                        name: 'Test User',
+                                        email: 'test@test.com',
+                                        balanceUsd: input,
+                                        assets: [],
+                                    },
+                                },
+                            },
+                        }),
+                    ],
+                },
+            });
+
+            await wrapper.vm.$nextTick();
+
+            const balanceElement = wrapper.find(
+                '[data-testid="wallet-usd-balance"]',
+            );
+            expect(balanceElement.text()).toBe(expected);
+        },
+    );
+
+    it('displays asset balances correctly', async () => {
         const wrapper = mount(WalletOverview, {
             global: {
                 plugins: [
@@ -57,13 +99,13 @@ describe('WalletOverview.vue', () => {
                                     id: 1,
                                     name: 'Test User',
                                     email: 'test@test.com',
-                                    balanceUsd: '9876.54',
+                                    balanceUsd: '1000',
                                     assets: [
                                         {
                                             id: 1,
                                             symbol: 'BTC',
-                                            amount: '1.5',
-                                            lockedAmount: '0.5',
+                                            amount: '1.50000000',
+                                            lockedAmount: '0.50000000',
                                         },
                                     ],
                                 },
@@ -76,8 +118,8 @@ describe('WalletOverview.vue', () => {
 
         await wrapper.vm.$nextTick();
 
-        expect(wrapper.text()).toContain('$9876.54');
-        expect(wrapper.text()).toContain('BTC');
-        expect(wrapper.text()).toContain('1.5 (0.5 locked)');
+        const assetList = wrapper.find('ul');
+        expect(assetList.text()).toContain('BTC');
+        expect(assetList.text()).toContain('1.50000000 (0.50000000 locked)');
     });
 });

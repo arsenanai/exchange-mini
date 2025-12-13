@@ -19,6 +19,12 @@ describe('Profile Store', () => {
         expect(store.error).toBeNull();
     });
 
+    it('returns zero balances when no user is set', () => {
+        const store = useProfileStore();
+        expect(store.balances.usd).toBe('0.00');
+        expect(store.balances.assets).toEqual([]);
+    });
+
     it('fetches profile successfully', async () => {
         const store = useProfileStore();
         const mockUser: User = {
@@ -50,5 +56,16 @@ describe('Profile Store', () => {
         await store.fetchProfile();
 
         expect(store.error).toBe('Server Error');
+    });
+
+    it('handles generic error when fetching profile fails', async () => {
+        const store = useProfileStore();
+        // Mock a generic error without a response object
+        (axios.get as any).mockRejectedValue(new Error('Network Error'));
+
+        await store.fetchProfile();
+
+        // Should use the fallback error message
+        expect(store.error).toBe('Failed to fetch profile');
     });
 });

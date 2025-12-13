@@ -15,4 +15,6 @@ abstract class TestCase extends BaseTestCase
     public \App\Models\User $seller;
 
     public \App\Services\MatchingService $matchingService;
+
+    public \App\Services\OrderService $orderService;
 }

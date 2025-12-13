@@ -37,9 +37,12 @@ Frontend (Vue.js SPA):
     *   [x] Convert all `.js` files to `.ts` and add type definitions.
     *   [x] Configure ESLint and Prettier for TypeScript.
     *   [x] Achieved 100% unit test coverage for stores.
-9.  [ ] E2E Testing (Dusk):
-    *   Install Laravel Dusk.
-    *   Write E2E tests for critical user flows (registration, login, placing/cancelling orders, matching).
+9.  [x] E2E Testing (Playwright):
+    *   [x] Install and configure Playwright.
+    *   [x] Replace `dusk` selectors in Vue components with `data-testid` for better test stability.
+    *   [x] Create an E2E test (`tests/e2e/exchange.spec.ts`) covering the primary user flow: registration, login, placing an order, and cancelling an order.
+    *   [x] The test verifies UI updates, including wallet balance changes and order status transitions.
+    *   [x] The test suite is configured to run against a local development server and resets the database before each test for consistency.
 
 Continuous Integration (CI):
 ----------------------------

@@ -78,7 +78,7 @@ export const useOrdersStore = defineStore('orders', {
             this.error = null;
             try {
                 const response = await axios.post(`/orders/${orderId}/cancel`);
-                const cancelledOrder: Order = response.data;
+                const cancelledOrder: Order = response.data.data;
 
                 const index = this.userOrders.findIndex(
                     (o) => o.id === orderId,
@@ -103,8 +103,6 @@ export const useOrdersStore = defineStore('orders', {
             (window as any).Echo.private(`user.${userId}`).listen(
                 'OrderMatched',
                 (event: any) => {
-                    console.log('OrderMatched event received:', event);
-
                     // Update the status of the matched order in the user's order list
                     const orderIndex = this.userOrders.findIndex(
                         (o) => o.id === event.order.id,

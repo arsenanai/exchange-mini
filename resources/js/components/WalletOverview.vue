@@ -21,6 +21,7 @@
                 </h3>
                 <p
                     class="text-2xl font-bold text-green-600 dark:text-green-400"
+                    data-testid="wallet-usd-balance"
                 >
                     ${{ formattedUsdBalance }}
                 </p>
@@ -62,9 +63,17 @@ import { computed, onMounted } from 'vue';
 
 const profileStore = useProfileStore();
 const balances = computed(() => profileStore.balances);
-const formattedUsdBalance = computed(() =>
-    parseFloat(balances.value.usd).toFixed(2),
-);
+const formattedUsdBalance = computed(() => {
+    const balance = parseFloat(balances.value.usd);
+    if (isNaN(balance)) {
+        return '0.00';
+    }
+    return balance.toLocaleString('en-US', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+        useGrouping: true,
+    });
+});
 
 onMounted(() => {
     profileStore.fetchProfile();

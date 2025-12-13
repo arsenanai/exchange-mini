@@ -7,7 +7,6 @@
             <select
                 v-model="selectedSymbol"
                 class="rounded-md border border-gray-300 bg-gray-50 px-3 py-1 text-sm text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                @change="fetchBook"
             >
                 <option value="BTC">BTC</option>
                 <option value="ETH">ETH</option>
@@ -45,7 +44,15 @@
                             :key="order.id"
                         >
                             <td class="py-1 text-red-600 dark:text-red-400">
-                                {{ parseFloat(order.price).toFixed(2) }}
+                                {{
+                                    parseFloat(order.price).toLocaleString(
+                                        'en-US',
+                                        {
+                                            minimumFractionDigits: 2,
+                                            maximumFractionDigits: 2,
+                                        },
+                                    )
+                                }}
                             </td>
                             <td
                                 class="py-1 text-right text-gray-700 dark:text-gray-300"
@@ -81,7 +88,15 @@
                             :key="order.id"
                         >
                             <td class="py-1 text-green-600 dark:text-green-400">
-                                {{ parseFloat(order.price).toFixed(2) }}
+                                {{
+                                    parseFloat(order.price).toLocaleString(
+                                        'en-US',
+                                        {
+                                            minimumFractionDigits: 2,
+                                            maximumFractionDigits: 2,
+                                        },
+                                    )
+                                }}
                             </td>
                             <td
                                 class="py-1 text-right text-gray-700 dark:text-gray-300"

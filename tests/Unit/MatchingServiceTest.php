@@ -1,17 +1,23 @@
 <?php
 
-namespace Tests\Unit\Services;
+namespace Tests\Unit;
 
+use App\Enums\MatchResults;
+use App\Enums\OrderStatuses;
 use App\Events\OrderMatched;
 use App\Models\Asset;
 use App\Models\Order;
 use App\Models\User;
+use App\Services\OrderService;
 use App\Services\MatchingService;
 use Illuminate\Support\Facades\Event;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+
+uses(RefreshDatabase::class);
 
 beforeEach(function () {
-    // Buyer setup
-    $this->buyer = User::factory()->create(['balance' => '50000.00']);
+    $this->orderService = $this->app->make(OrderService::class);
+    $this->buyer = User::factory()->create(['balance' => '50750.00']); // 50000 for order + 750 for max fee
 
     // Seller setup
     $this->seller = User::factory()->create(['balance' => '10000.00']);
@@ -19,110 +25,243 @@ beforeEach(function () {
         'user_id' => $this->seller->id,
         'symbol' => 'BTC',
         'amount' => '2.0',
+        'locked_amount' => '0.0', // Ensure initial locked amount is 0
     ]);
 
-    $this->matchingService = new MatchingService();
+    $this->matchingService = $this->app->make(MatchingService::class);
 });
 
 test('it can match a new buy order with an existing sell order', function () {
     Event::fake();
 
-    // 1. Seller places an open order
-    $sellOrder = Order::factory()->create([
-        'user_id' => $this->seller->id,
+    // Arrange: Use the OrderService to create the initial state
+    $sellOrder = $this->orderService->createOrder([
         'symbol' => 'BTC',
         'side' => 'sell',
-        'price' => '49900.00',
+        'price' => '49000.00',
         'amount' => '1.0',
-        'status' => Order::STATUS_OPEN,
-        'locked_asset' => '1.0',
-    ]);
-    // Manually adjust seller's asset as OrderController would
-    $sellerAsset = $this->seller->assets()->where('symbol', 'BTC')->first();
-    $sellerAsset->amount = '1.0';
-    $sellerAsset->locked_amount = '1.0';
-    $sellerAsset->save();
+    ], $this->seller);
 
-    // 2. Buyer places a matching order
-    $buyOrder = Order::factory()->create([
-        'user_id' => $this->buyer->id,
+    $buyOrder = $this->orderService->createOrder([
         'symbol' => 'BTC',
         'side' => 'buy',
         'price' => '50000.00', // Higher price, should match
         'amount' => '1.0',
-        'status' => Order::STATUS_OPEN,
-        'locked_usd' => '50000.00', // 50000 * 1.0
-    ]);
-    // Manually adjust buyer's balance as OrderController would
-    $this->buyer->balance = '0.00';
-    $this->buyer->save();
+    ], $this->buyer);
 
-    // 3. Run the matching service
+    // Act
     $result = $this->matchingService->tryMatch($buyOrder);
 
-    // Assertions
-    expect($result)->not->toBeNull();
-
-    // Check orders are filled
+    // Assert
+    expect($result)->toBeArray()->toHaveKeys(['price', 'amount', 'buyer_fee_usd', 'seller_fee_asset']);
     $buyOrder->refresh();
     $sellOrder->refresh();
-    expect($buyOrder->status)->toBe(Order::STATUS_FILLED);
-    expect($sellOrder->status)->toBe(Order::STATUS_FILLED);
+    expect($buyOrder->status)->toBe(OrderStatuses::FILLED);
+    expect($sellOrder->status)->toBe(OrderStatuses::FILLED);
 
-    // Check balances and assets
     $this->buyer->refresh();
     $this->seller->refresh();
     $buyerAsset = $this->buyer->assets()->where('symbol', 'BTC')->first();
-    $sellerAsset->refresh();
+    $sellerAsset = $this->seller->assets()->where('symbol', 'BTC')->first();
 
-    // Trade executed at seller's price: 49900 USD
-    $usdValue = 49900.0;
-    $commissionRate = 0.015;
-    $buyerFeeUsd = $usdValue * $commissionRate; // 748.5
-    $sellerFeeAsset = 1.0 * $commissionRate; // 0.015
-
-    // Buyer was refunded price improvement (50000 - 49900) = 100
-    // Then paid fee of 748.5. Net change: 100 - 748.5 = -648.5
-    // Initial balance was 0 after locking funds. So, final balance is -648.5.
-    // Wait, the logic in MatchingService adds the refund to the existing balance.
-    // Buyer balance was 0. Refund is 100. Fee is 748.5.
-    // bcadd(0, bcsub(100, 748.5)) = -648.5. This seems wrong. Let's re-read the service.
-    // Ah, the buyer's balance is reduced at order creation. The service adjusts it.
-    // Buyer started with 50k, 50k was locked. Balance became 0.
-    // Price improvement: 50000 (locked) - 49900 (actual) = 100
-    // Fee: 49900 * 0.015 = 748.5
-    // Balance adjustment: +100 (refund) - 748.5 (fee) = -648.5.
-    // The buyer's balance should be `bcadd($buyer->balance, bcsub($priceImprovement, $buyerFeeUsd, 8), 8);`
-    // So, 0 + (100 - 748.5) = -648.5. This is still weird. The buyer's balance was already reduced.
-    // The logic is: `balance = balance + price_improvement - fee`.
-    // Let's re-calculate: Buyer balance after order creation: 50000 - 50000 = 0.
-    // After match: 0 + (50000 - 49900) - (49900 * 0.015) = 100 - 748.5 = -648.5.
-    // The logic in `MatchingService` seems to have a bug if the fee is larger than the price improvement.
-    // Let's adjust the test to reflect the *current* code's behavior.
-    $expectedBuyerBalance = bcadd('0.00', bcsub('100.00', (string) $buyerFeeUsd, 8), 8); // -648.50
-    // The code has a potential issue here, but the test should reflect the current implementation.
-    // Let's assume the intention was `(balance + locked_usd) - actual_cost - fee`.
-    // Let's test the final state:
-    // Buyer: gets 1 BTC (minus fee), balance is adjusted.
-    // Seller: gets 49900 USD, gives 1 BTC.
+    // Buyer's final balance: 50750 (initial) - 50000 (locked) + [50000 (locked) - (49000 (cost) + 735 (fee))] = 1015
+    expect($this->buyer->balance)->toEqual('1015.00000000');
 
     // Buyer gets 1 - 0.015 = 0.985 BTC
     expect($buyerAsset->amount)->toEqual('0.98500000');
-    // Seller gets 49900 USD
-    expect($this->seller->refresh()->balance)->toEqual(bcadd('10000.00', '49900.00', 8)); // 59900.00
-    // Seller's asset is now 1.0 available, 0.0 locked
+    // Seller gets 49000 USD
+    expect($this->seller->refresh()->balance)->toEqual(bcadd('10000.00', '49000.00', 8)); // 59000.00
+    // Seller sold 1 BTC from their original 2. They have 1.0 left available, and 0.0 locked. The `amount` field represents available, not total.
     expect($sellerAsset->refresh()->amount)->toEqual('1.00000000');
     expect($sellerAsset->locked_amount)->toEqual('0.00000000');
 
-    // Check Trade record
     $this->assertDatabaseHas('trades', [
         'buy_order_id' => $buyOrder->id,
         'sell_order_id' => $sellOrder->id,
-        'price' => '49900.00000000',
+        'price' => '49000.00000000',
     ]);
 
-    // Check Event was dispatched
     Event::assertDispatched(OrderMatched::class, function ($event) use ($buyOrder) {
         return $event->buyOrder->id === $buyOrder->id;
     });
+});
+
+test('it can match a new sell order with an existing buy order', function () {
+    Event::fake();
+
+    // Arrange: Use the OrderService to create the initial state
+    $buyOrder = $this->orderService->createOrder([
+        'symbol' => 'BTC',
+        'side' => 'buy',
+        'price' => '50000.00',
+        'amount' => '1.0',
+    ], $this->buyer);
+
+    $sellOrder = $this->orderService->createOrder([
+        'symbol' => 'BTC',
+        'side' => 'sell',
+        'price' => '49000.00', // Lower price, should match
+        'amount' => '1.0',
+    ], $this->seller);
+
+    // Act
+    $result = $this->matchingService->tryMatch($sellOrder);
+
+    // Assert
+    expect($result)->toBeArray()->toHaveKeys(['price', 'amount', 'buyer_fee_usd', 'seller_fee_asset']);
+    $buyOrder->refresh();
+    $sellOrder->refresh();
+    expect($buyOrder->status)->toBe(OrderStatuses::FILLED);
+    expect($sellOrder->status)->toBe(OrderStatuses::FILLED);
+
+    $buyerAsset = $this->buyer->assets()->where('symbol', 'BTC')->first();
+    $sellerAsset = $this->seller->assets()->where('symbol', 'BTC')->first();
+
+    expect($this->buyer->refresh()->balance)->toEqual('1015.00000000');
+
+    // Buyer gets 1 - (1 * 0.015) = 0.985 BTC
+    expect($buyerAsset->amount)->toEqual('0.98500000');
+    // Seller gets 49900 USD added to their initial 10k
+    expect($this->seller->refresh()->balance)->toEqual(bcadd('10000.00', '49000.00', 8));
+
+    Event::assertDispatched(OrderMatched::class);
+});
+
+test('it does not match a new sell order if no counter buy order exists', function () {
+    $sellOrder = $this->orderService->createOrder([
+        'symbol' => 'BTC',
+        'side' => 'sell',
+        'price' => '49000.00',
+        'amount' => '1.0',
+    ], $this->seller);
+
+    $result = $this->matchingService->tryMatch($sellOrder);
+
+    expect($result)->toBe(MatchResults::NO_COUNTER_ORDER);
+    $sellOrder->refresh();
+    expect($sellOrder->status)->toBe(OrderStatuses::OPEN);
+});
+
+test('it does not match if no counter order exists', function () {
+    $buyOrder = $this->orderService->createOrder([
+        'symbol' => 'BTC',
+        'side' => 'buy',
+        'price' => '50000.00',
+        'amount' => '1.0',
+    ], $this->buyer);
+
+    $result = $this->matchingService->tryMatch($buyOrder);
+
+    expect($result)->toBe(MatchResults::NO_COUNTER_ORDER);
+    $buyOrder->refresh();
+    expect($buyOrder->status)->toBe(OrderStatuses::OPEN);
+});
+
+test('it does not match if amounts are not equal', function () {
+    $this->orderService->createOrder([
+        'symbol' => 'BTC',
+        'side' => 'sell',
+        'price' => '49900.00',
+        'amount' => '1.0',
+    ], $this->seller);
+
+    $buyOrder = $this->orderService->createOrder([
+        'symbol' => 'BTC',
+        'side' => 'buy',
+        'price' => '50000.00',
+        'amount' => '0.5', // Different amount
+    ], $this->buyer);
+
+    $result = $this->matchingService->tryMatch($buyOrder);
+
+    expect($result)->toBe(MatchResults::AMOUNTS_NOT_EQUAL);
+    $buyOrder->refresh();
+    expect($buyOrder->status)->toBe(OrderStatuses::OPEN);
+});
+
+test('it handles data inconsistency with seller asset gracefully', function () {
+    // Arrange: Create a valid sell order first using the service.
+    $sellOrder = $this->orderService->createOrder([
+        'symbol' => 'BTC',
+        'side' => 'sell',
+        'price' => '49000.00',
+        'amount' => '1.0',
+    ], $this->seller);
+
+    // Now, manually introduce the data inconsistency we want to test.
+    $sellerAsset = $this->seller->assets()->where('symbol', 'BTC')->first();
+    $sellerAsset->locked_amount = '0.5'; // In reality, only 0.5 is locked
+    $sellerAsset->save();
+
+    // Create a valid counter-order.
+    $buyOrder = $this->orderService->createOrder(['symbol' => 'BTC', 'side' => 'buy', 'price' => '50000.00', 'amount' => '1.0'], $this->buyer);
+
+    $result = $this->matchingService->tryMatch($buyOrder);
+
+    expect($result)->toBe(MatchResults::INSUFFICIENT_SELLER_ASSET_LOCKED);
+    $buyOrder->refresh();
+    $sellOrder->refresh();
+    expect($buyOrder->status)->toBe(OrderStatuses::OPEN);
+    expect($sellOrder->status)->toBe(OrderStatuses::OPEN);
+});
+
+test('it does not match an order that is not open', function () {
+    $buyOrder = Order::factory()->create([
+        'user_id' => $this->buyer->id,
+        'symbol' => 'BTC',
+        'side' => 'buy',
+        'price' => '50000.00',
+        'amount' => '1.0',
+        'status' => OrderStatuses::FILLED, // Already filled
+    ]);
+
+    $result = $this->matchingService->tryMatch($buyOrder);
+
+    expect($result)->toBe(MatchResults::ORDER_NOT_OPEN_OR_INVALID);
+});
+
+test('it does not match if buyer cannot afford fee despite price improvement', function () {
+    $sellOrder = $this->orderService->createOrder([
+        'symbol' => 'BTC',
+        'side' => 'sell',
+        'price' => '49999.00',
+        'amount' => '1.0',
+    ], $this->seller);
+
+    $buyOrder = $this->orderService->createOrder([
+        'symbol' => 'BTC',
+        'side' => 'buy',
+        'price' => '50000.00',
+        'amount' => '1.0',
+    ], $this->buyer);
+
+    $result = $this->matchingService->tryMatch($buyOrder);
+
+    expect($result)->toBe(MatchResults::INSUFFICIENT_BUYER_FUNDS);
+    expect($buyOrder->refresh()->status)->toBe(OrderStatuses::OPEN);
+    expect($sellOrder->refresh()->status)->toBe(OrderStatuses::OPEN);
+});
+
+test('it handles a missing buyer record mid-transaction', function () {
+    $sellOrder = $this->orderService->createOrder([
+        'symbol' => 'BTC',
+        'side' => 'sell',
+        'price' => '49000.00',
+        'amount' => '1.0',
+    ], $this->seller);
+
+    // Create a mock of the User model.
+    $userMock = $this->mock(User::class);
+
+    // Expect `where` to be called with the buyer's ID and chain the next calls.
+    $userMock->shouldReceive('where')->with('id', $this->buyer->id)->andReturn($userMock);
+    // When `lockForUpdate->first` is called, return null to simulate the user not being found.
+    $userMock->shouldReceive('lockForUpdate->first')->andReturn(null);
+    // For the seller lookup, allow the call to pass through to the real model.
+    $userMock->shouldReceive('where')->with('id', $this->seller->id)->passthru();
+
+    $buyOrder = $this->orderService->createOrder(['symbol' => 'BTC', 'side' => 'buy', 'price' => '50000.00', 'amount' => '1.0'], $this->buyer);
+
+    // Call the service, injecting our mock.
+    expect($this->matchingService->tryMatch($buyOrder, $userMock))->toBe(MatchResults::BUYER_NOT_FOUND);
 });

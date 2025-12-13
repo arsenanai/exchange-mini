@@ -122,5 +122,7 @@ return [
         'driver' => env('APP_MAINTENANCE_DRIVER', 'file'),
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
-
+    'commission_rate' => env('APP_COMMISSION_RATE', '0.015'),
+    'initial_user_balance' => env('APP_INITIAL_USER_BALANCE', '10000.00'),
+    'tradeable_symbols' => explode(',', env('APP_TRADEABLE_SYMBOLS', 'BTC,ETH')),
 ];

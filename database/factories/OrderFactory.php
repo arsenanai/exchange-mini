@@ -4,6 +4,7 @@ namespace Database\Factories;
 
 use App\Models\Order;
 use App\Models\User;
+use App\Enums\OrderStatuses;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -21,7 +22,7 @@ class OrderFactory extends Factory
             'side' => $this->faker->randomElement(['buy', 'sell']),
             'price' => $this->faker->randomFloat(8, 2000, 50000),
             'amount' => $this->faker->randomFloat(8, 0.1, 5),
-            'status' => Order::STATUS_OPEN,
+            'status' => OrderStatuses::OPEN,
             'locked_usd' => '0',
             'locked_asset' => '0',
         ];

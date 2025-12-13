@@ -1,3 +1,4 @@
+import { csrfCookie } from '@/bootstrap';
 import router from '@/router';
 import axios from 'axios';
 import { defineStore } from 'pinia';
@@ -32,19 +33,26 @@ export const useAuthStore = defineStore('auth', {
             ordersStore.listenForMatches(user.id);
         },
 
+        async getCsrfCookie() {
+            await csrfCookie();
+        },
+
         async login(credentials: LoginCredentials) {
+            await this.getCsrfCookie();
             const response = await axios.post('/login', credentials);
-            const { token, user } = response.data;
-            this.setUserAndToken(user.data, token);
-            await router.push('/');
+            this.setUserAndToken(response.data.user, response.data.token);
+            await router.push('/exchange');
         },
 
         async register(userInfo: RegisterInfo) {
-            await axios.get('/sanctum/csrf-cookie');
-            const response = await axios.post('/register', userInfo);
-            const { token, user } = response.data;
-            this.setUserAndToken(user.data, token);
-            await router.push('/');
+            await this.getCsrfCookie();
+            await axios.post('/register', userInfo);
+
+            // After successful registration, immediately log the user in to get a token.
+            await this.login({
+                email: userInfo.email,
+                password: userInfo.password,
+            });
         },
 
         async logout(): Promise<void> {

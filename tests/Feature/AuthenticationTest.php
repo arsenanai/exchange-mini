@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Feature\Auth;
+namespace Tests\Feature;
 
 use App\Models\User;
 
@@ -11,7 +11,7 @@ test('a user can register', function () {
         'password' => 'password',
     ]);
 
-    $response->assertStatus(201)
+    $response->assertCreated()
         ->assertJsonStructure(['data' => ['id', 'name', 'email', 'balanceUsd', 'assets']]);
 
     $this->assertDatabaseHas('users', [
@@ -29,6 +29,17 @@ test('a user can login and get a token', function () {
 
     $response->assertStatus(200)
         ->assertJsonStructure(['token', 'user']);
+});
+
+test('a user cannot login with invalid credentials', function () {
+    $user = User::factory()->create();
+
+    $response = $this->postJson('/api/login', [
+        'email' => $user->email,
+        'password' => 'wrong-password',
+    ]);
+
+    $response->assertStatus(422)->assertJson(['message' => 'Invalid credentials']);
 });
 
 test('a user can logout', function () {

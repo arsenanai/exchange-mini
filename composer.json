@@ -20,7 +20,6 @@
         "fakerphp/faker": "^1.23",
         "larastan/larastan": "^2.9",
         "laravel/boost": "^1.8",
-        "laravel/dusk": "^8.3",
         "laravel/pail": "^1.2.2",
         "laravel/pint": "^1.24",
         "laravel/sail": "^1.41",
@@ -56,7 +55,7 @@
         ],
         "test": [
             "@php artisan config:clear --ansi",
-            "@php artisan test"
+            "@php artisan test --coverage"
         ],
         "format": [
             "./vendor/bin/pint"
@@ -64,11 +63,8 @@
         "analyse": [
             "php -d memory_limit=-1 vendor/bin/phpstan analyse"
         ],
-        "test:dusk": [
-            "php artisan dusk"
-        ],
-        "dusk:update": [
-            "php artisan dusk:chrome-driver"
+        "docs:generate": [
+            "@php artisan l5-swagger:generate"
         ],
         "post-autoload-dump": [
             "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",

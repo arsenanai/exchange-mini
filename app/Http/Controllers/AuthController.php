@@ -7,15 +7,16 @@ namespace App\Http\Controllers;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Requests\Auth\RegisterRequest;
 use App\Http\Resources\UserResource;
-use App\Models\User;
+use App\Services\AuthService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
-use Illuminate\Support\Facades\Hash;
-use Laravel\Sanctum\PersonalAccessToken;
 
 class AuthController extends Controller
 {
+    public function __construct(private readonly AuthService $authService)
+    {
+    }
+
     /**
      * @OA\Post(
      *      path="/api/register",
@@ -34,7 +35,9 @@ class AuthController extends Controller
      *          response=201,
      *          description="User registered successfully",
      *
-     *          @OA\JsonContent(ref="#/components/schemas/UserResource")
+     *          @OA\JsonContent(properties={
+     *              @OA\Property(property="data", ref="#/components/schemas/UserResource")
+     *          })
      *      ),
      *
      *      @OA\Response(
@@ -47,13 +50,7 @@ class AuthController extends Controller
      */
     public function register(RegisterRequest $req): UserResource
     {
-        $data = $req->validated();
-        $user = User::create([
-            'name' => $data['name'],
-            'email' => $data['email'],
-            'password' => Hash::make($data['password']),
-            'balance' => '10000.00',  // seed demo funds
-        ]);
+        $user = $this->authService->register($req->validated());
 
         return new UserResource($user->load('assets'));
     }
@@ -98,16 +95,13 @@ class AuthController extends Controller
      */
     public function login(LoginRequest $req): JsonResponse
     {
-        $data = $req->validated();
-        $user = User::where('email', $data['email'])->first();
-        if (! $user || ! Hash::check($data['password'], $user->password)) {
-            return response()->json(['message' => 'Invalid credentials'], 422);
-        }
-        $token = $user->createToken('api-token')->plainTextToken;
+        $result = $this->authService->login($req->validated());
 
         return response()->json([
-            'token' => $token,
-            'user' => new UserResource($user->load('assets')),
+            'token' => $result['token'],
+            'user' => [
+                'data' => new UserResource($result['user']->load('assets')),
+            ],
         ]);
     }
 
@@ -135,13 +129,7 @@ class AuthController extends Controller
     {
         /** @var \App\Models\User $user */
         $user = $req->user();
-
-        $token = $user->currentAccessToken();
-        if (method_exists($user, 'tokens') && $token instanceof PersonalAccessToken) {
-            $token->delete();
-        } else {
-            auth()->guard('web')->logout();
-        }
+        $this->authService->logout($user);
 
         return response()->json(['message' => 'Logged out']);
     }

@@ -1,6 +1,7 @@
 *.log
 .DS_Store
 .env
+.env.testing
 .env.backup
 .env.production
 .phpactor.json
@@ -16,9 +17,16 @@
 /public/build
 /public/hot
 /public/storage
+/database/*.sqlite
+/database/*.sqlite-journal
 /storage/*.key
 /storage/pail
 /vendor
 Homestead.json
 Homestead.yaml
 Thumbs.db
+playwright-report
+test-results
+
+/coverage-backend
+/resources/js/coverage

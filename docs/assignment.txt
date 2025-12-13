@@ -90,7 +90,7 @@ Answer: I don't know, make sure to keep one standart in the assignment project
 Personal comments:
 1) use PL linters with typesafety, for PHP - Larastan with strict datatypes, for Typescript - eslint, make sure that I can run linter in terminal and configure VSCode to support that as well.
 2) use PL formatters, for PHP - Pint with PSR-12, for Typescript - any standart formatter like ecmascript.
-3) cover code with Unit/Integration/E2E tests. For Laravel use Pest as testing framework with Chrome driver, and Dusk as E2E. For Vue use vitest for unit testing.
+3) cover code with Unit/Integration/E2E tests. For Laravel use Pest as testing framework, and Playwright as E2E with Chrome driver. For Vue use vitest for unit testing.
 4) divide files for logical parts, keep logic in Service files, keep Controllers thin, use synchronous models on backend and frontend to make same convention, use camelCase in all project specific requests and responses, you can keep laravel's shipped requests as is, use Response and Requests classes for that.
 5) make sure you add terminal outputs in tests, in order to see what is going wrong.
 6) Solidify the API Contract with OpenAPI (Swagger) - We need to generate an openapi.yaml specification directly from our PHP code using annotations.

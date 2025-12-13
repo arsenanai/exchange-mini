@@ -11,7 +11,9 @@
     "paths": {
         "/api/register": {
             "post": {
-                "tags": ["Authentication"],
+                "tags": [
+                    "Authentication"
+                ],
                 "summary": "Register a new user",
                 "description": "Creates a new user account and returns the user data.",
                 "operationId": "registerUser",
@@ -31,7 +33,12 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/UserResource"
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/UserResource"
+                                        }
+                                    },
+                                    "type": "object"
                                 }
                             }
                         }
@@ -51,7 +58,9 @@
         },
         "/api/login": {
             "post": {
-                "tags": ["Authentication"],
+                "tags": [
+                    "Authentication"
+                ],
                 "summary": "Log in a user",
                 "description": "Logs in a user and returns an API token and user data.",
                 "operationId": "loginUser",
@@ -111,7 +120,9 @@
         },
         "/api/logout": {
             "post": {
-                "tags": ["Authentication"],
+                "tags": [
+                    "Authentication"
+                ],
                 "summary": "Log out the current user",
                 "description": "Invalidates the user's current API token.",
                 "operationId": "logoutUser",
@@ -142,7 +153,9 @@
         },
         "/api/orders": {
             "get": {
-                "tags": ["Orders"],
+                "tags": [
+                    "Orders"
+                ],
                 "summary": "Get open orders for the order book",
                 "description": "Returns a list of all open buy and sell orders. Can be filtered by symbol.",
                 "operationId": "getOrderBook",
@@ -179,7 +192,9 @@
                 }
             },
             "post": {
-                "tags": ["Orders"],
+                "tags": [
+                    "Orders"
+                ],
                 "summary": "Create a new limit order",
                 "description": "Places a new buy or sell limit order, locking the necessary funds or assets.",
                 "operationId": "createOrder",
@@ -200,7 +215,7 @@
                             "application/json": {
                                 "schema": {
                                     "properties": {
-                                        "order": {
+                                        "data": {
                                             "$ref": "#/components/schemas/OrderResource"
                                         }
                                     },
@@ -245,7 +260,9 @@
         },
         "/api/orders/{id}/cancel": {
             "post": {
-                "tags": ["Orders"],
+                "tags": [
+                    "Orders"
+                ],
                 "summary": "Cancel an open order",
                 "description": "Cancels an open order and releases any locked funds or assets.",
                 "operationId": "cancelOrder",
@@ -266,7 +283,12 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/OrderResource"
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/OrderResource"
+                                        }
+                                    },
+                                    "type": "object"
                                 }
                             }
                         }
@@ -303,7 +325,9 @@
         },
         "/api/orders/all": {
             "get": {
-                "tags": ["Orders"],
+                "tags": [
+                    "Orders"
+                ],
                 "summary": "Get all of the authenticated user's orders",
                 "description": "Returns a list of all orders (open, filled, cancelled) for the authenticated user.",
                 "operationId": "getUserOrders",
@@ -339,7 +363,9 @@
         },
         "/api/profile": {
             "get": {
-                "tags": ["Profile"],
+                "tags": [
+                    "Profile"
+                ],
                 "summary": "Get user profile and balances",
                 "description": "Returns the authenticated user's profile, including USD balance and asset holdings.",
                 "operationId": "getProfile",
@@ -349,7 +375,12 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/UserResource"
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/UserResource"
+                                        }
+                                    },
+                                    "type": "object"
                                 }
                             }
                         }
@@ -409,16 +440,27 @@
             "StoreOrderRequest": {
                 "title": "StoreOrderRequest",
                 "description": "Request body for creating a new order",
-                "required": ["symbol", "side", "price", "amount"],
+                "required": [
+                    "symbol",
+                    "side",
+                    "price",
+                    "amount"
+                ],
                 "properties": {
                     "symbol": {
                         "type": "string",
-                        "enum": ["BTC", "ETH"],
+                        "enum": [
+                            "BTC",
+                            "ETH"
+                        ],
                         "example": "BTC"
                     },
                     "side": {
                         "type": "string",
-                        "enum": ["buy", "sell"],
+                        "enum": [
+                            "buy",
+                            "sell"
+                        ],
                         "example": "buy"
                     },
                     "price": {
@@ -447,7 +489,9 @@
                     "errors": {
                         "type": "object",
                         "example": {
-                            "email": ["The email field is required."]
+                            "email": [
+                                "The email field is required."
+                            ]
                         }
                     }
                 },
@@ -496,7 +540,10 @@
                     },
                     "side": {
                         "type": "string",
-                        "enum": ["buy", "sell"],
+                        "enum": [
+                            "buy",
+                            "sell"
+                        ],
                         "example": "buy"
                     },
                     "price": {

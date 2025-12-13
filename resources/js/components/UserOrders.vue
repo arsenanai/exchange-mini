@@ -56,7 +56,11 @@
                 <tbody
                     class="divide-y divide-gray-200 bg-white dark:divide-gray-700 dark:bg-gray-800"
                 >
-                    <tr v-for="order in ordersStore.userOrders" :key="order.id">
+                    <tr
+                        v-for="order in ordersStore.userOrders"
+                        :key="order.id"
+                        :data-testid="'order-row-' + order.id"
+                    >
                         <td
                             class="px-4 py-2 text-sm whitespace-nowrap text-gray-900 dark:text-white"
                         >
@@ -75,7 +79,12 @@
                         <td
                             class="px-4 py-2 text-sm whitespace-nowrap text-gray-500 dark:text-gray-300"
                         >
-                            {{ order.price }}
+                            ${{
+                                parseFloat(order.price).toLocaleString(
+                                    'en-US',
+                                    { minimumFractionDigits: 2 },
+                                )
+                            }}
                         </td>
                         <td
                             class="px-4 py-2 text-sm whitespace-nowrap text-gray-500 dark:text-gray-300"
@@ -84,6 +93,7 @@
                         </td>
                         <td
                             class="px-4 py-2 text-sm whitespace-nowrap text-gray-500 dark:text-gray-300"
+                            data-testid="order-status"
                         >
                             {{ statusText(order.status) }}
                         </td>

@@ -5,11 +5,15 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Http\Resources\UserResource;
-use App\Models\Asset;
+use App\Services\ProfileService;
 use Illuminate\Http\Request;
 
 class ProfileController extends Controller
 {
+    public function __construct(private readonly ProfileService $profileService)
+    {
+    }
+
     /**
      * @OA\Get(
      *      path="/api/profile",
@@ -23,7 +27,11 @@ class ProfileController extends Controller
      *          response=200,
      *          description="Successful operation",
      *
-     *          @OA\JsonContent(ref="#/components/schemas/UserResource")
+     *          @OA\JsonContent(
+     *              properties={
+     *                  @OA\Property(property="data", ref="#/components/schemas/UserResource"),
+     *              }
+     *          )
      *      ),
      *
      *      @OA\Response(response=401, description="Unauthenticated")
@@ -33,8 +41,8 @@ class ProfileController extends Controller
     {
         /** @var \App\Models\User $user */
         $user = $req->user();
-        $user->load('assets');
+        $profile = $this->profileService->getProfile($user);
 
-        return new UserResource($user);
+        return new UserResource($profile);
     }
 }

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Requests\Order;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 /**
  * @OA\Schema(
@@ -38,7 +39,7 @@ class StoreOrderRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'symbol' => 'required|in:BTC,ETH',
+            'symbol' => ['required', Rule::in(config('app.tradeable_symbols'))],
             'side' => 'required|in:buy,sell',
             'price' => 'required|numeric|min:0.00000001',
             'amount' => 'required|numeric|min:0.00000001',
