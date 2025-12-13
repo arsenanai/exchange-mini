@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 
 test('user can register, login, and manage orders', async ({ page }) => {
     // Conditionally enable verbose logging based on environment variable
@@ -21,7 +21,9 @@ test('user can register, login, and manage orders', async ({ page }) => {
             }
         });
         page.on('response', async (response) => {
-            if (resourceTypesToLog.includes(response.request().resourceType())) {
+            if (
+                resourceTypesToLog.includes(response.request().resourceType())
+            ) {
                 const status = response.status();
                 const text = `<< ${status} ${response.request().method()} ${response.url()}`;
                 if (status >= 400) {
@@ -45,7 +47,9 @@ test('user can register, login, and manage orders', async ({ page }) => {
     await expect(page.getByText('Welcome to Exchange Mini')).toBeVisible();
     await page.getByRole('link', { name: 'Register' }).click();
 
-    await expect(page.getByRole('heading', { name: 'Create an account' })).toBeVisible();
+    await expect(
+        page.getByRole('heading', { name: 'Create an account' }),
+    ).toBeVisible();
     await page.getByLabel('Name').fill('Playwright User');
     await page.getByLabel('Email address').fill('playwright@example.com');
     await page.getByLabel('Password').fill('password123');
@@ -57,7 +61,9 @@ test('user can register, login, and manage orders', async ({ page }) => {
     // 2. Verify Initial State & Logout
     // The default user created by migrate:fresh (via a seeder) has 10,000 USD.
     // A newly registered user starts with a balance of 10,000 USD.
-    await expect(page.getByTestId('wallet-usd-balance')).toContainText('$10,000.00');
+    await expect(page.getByTestId('wallet-usd-balance')).toContainText(
+        '$10,000.00',
+    );
 
     await page.getByRole('button', { name: 'Logout' }).click();
     await expect(page).toHaveURL('/login');
@@ -65,12 +71,14 @@ test('user can register, login, and manage orders', async ({ page }) => {
     // 3. Login
     await page.goto('/');
     await page.getByRole('link', { name: 'Login' }).click();
-    await expect(page.getByRole('heading', { name: 'Login to your account' })).toBeVisible();
+    await expect(
+        page.getByRole('heading', { name: 'Login to your account' }),
+    ).toBeVisible();
     await page.getByLabel('Email address').fill('playwright@example.com');
     await page.getByLabel('Password').fill('password123');
     await page.getByRole('button', { name: 'Login' }).click();
 
-    await expect(page).toHaveURL('/exchange');
+    await page.waitForURL('/exchange');
 
     // 4. Place a Buy Order
     await page.locator('#symbol').selectOption('BTC');
@@ -90,7 +98,9 @@ test('user can register, login, and manage orders', async ({ page }) => {
 
     // Balance should be 10,000 - 2,000 = 8,000
     // We use `waitFor` to give the frontend time to update after the API call.
-    await expect(page.getByTestId('wallet-usd-balance')).toContainText('$8,000.00');
+    await expect(page.getByTestId('wallet-usd-balance')).toContainText(
+        '$8,000.00',
+    );
 
     // 6. Cancel the Order
     // We explicitly wait for the 'cancel' API call to finish before asserting UI changes.
@@ -105,5 +115,7 @@ test('user can register, login, and manage orders', async ({ page }) => {
 
     // 7. Verify Balance is Restored
     // After cancellation, the locked funds are returned.
-    await expect(page.getByTestId('wallet-usd-balance')).toContainText('$10,000.00');
+    await expect(page.getByTestId('wallet-usd-balance')).toContainText(
+        '$10,000.00',
+    );
 });

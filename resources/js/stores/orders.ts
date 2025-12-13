@@ -59,7 +59,7 @@ export const useOrdersStore = defineStore('orders', {
             this.error = null;
             try {
                 const response = await axios.post('/orders', order);
-                const newOrder: Order = response.data.order;
+                const newOrder: Order = response.data.data;
                 this.userOrders.unshift(newOrder);
 
                 // Refresh profile to get updated balances

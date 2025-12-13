@@ -40,13 +40,14 @@ export const useAuthStore = defineStore('auth', {
         async login(credentials: LoginCredentials) {
             await this.getCsrfCookie();
             const response = await axios.post('/login', credentials);
-            this.setUserAndToken(response.data.user, response.data.token);
+            // Per api-docs.json, the user object is nested under 'user.data'.
+            this.setUserAndToken(response.data.user.data, response.data.token);
             await router.push('/exchange');
         },
 
         async register(userInfo: RegisterInfo) {
             await this.getCsrfCookie();
-            await axios.post('/register', userInfo);
+            await axios.post('/register', userInfo); // The response contains the new user
 
             // After successful registration, immediately log the user in to get a token.
             await this.login({

@@ -35,33 +35,24 @@ window.Echo = new Echo({
     broadcaster: 'pusher',
     key: import.meta.env.VITE_PUSHER_APP_KEY,
     cluster: import.meta.env.VITE_PUSHER_APP_CLUSTER,
-    forceTLS: true,
-    authorizer: (channel: { name: string }) => {
-        return {
-            authorize: (
-                socketId: string,
-                callback: (error: boolean, authData: object) => void,
-            ) => {
-                // Use a custom axios config to hit the correct auth endpoint,
-                // which is not under the '/api' prefix.
-                const apiBaseUrl = window.axios.defaults.baseURL.replace(
-                    '/api',
-                    '',
-                );
-                axios
-                    .post(
-                        '/broadcasting/auth',
-                        {
-                            socket_id: socketId,
-                            channel_name: channel.name,
-                        },
-                        { baseURL: apiBaseUrl },
-                    )
-                    .then((response) =>
-                        callback(false, response.data as object),
-                    )
-                    .catch((error) => callback(true, error as object));
-            },
-        };
-    },
+    forceTLS: true, // It's generally a good practice to keep this
+    /**
+     * We need a custom authorizer because the default one will use the
+     * global axios instance's baseURL (e.g., /api), but the auth
+     * endpoint is at the root.
+     */
+    authorizer: (channel: { name: string }) => ({
+        authorize: (
+            socketId: string,
+            callback: (error: boolean, authData: object) => void,
+        ) => {
+            axios
+                .post('/broadcasting/auth', {
+                    socket_id: socketId,
+                    channel_name: channel.name,
+                })
+                .then((response) => callback(false, response.data))
+                .catch((error) => callback(true, error));
+        },
+    }),
 });

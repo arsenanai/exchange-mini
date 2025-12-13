@@ -1,5 +1,4 @@
 import { request } from '@playwright/test';
-import { execSync } from 'child_process';
 
 async function globalSetup() {
     console.log('Running global setup...');
@@ -20,7 +19,9 @@ async function globalSetup() {
 
     if (!response.ok()) {
         console.error('Failed to migrate database:', await response.text());
-        throw new Error(`Failed to migrate database: ${response.status()} ${response.statusText()}`);
+        throw new Error(
+            `Failed to migrate database: ${response.status()} ${response.statusText()}`,
+        );
     }
     console.log('Database migrated successfully.');
     await requestContext.dispose();

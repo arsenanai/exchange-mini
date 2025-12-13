@@ -103,7 +103,7 @@ describe('Orders Store', () => {
             amount: '0.1',
         };
 
-        (axios.post as any).mockResolvedValue({ data: { order: mockOrder } });
+        (axios.post as any).mockResolvedValue({ data: { data: mockOrder } });
         const fetchProfileSpy = vi
             .spyOn(profileStore, 'fetchProfile')
             .mockResolvedValue();

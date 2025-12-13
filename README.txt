@@ -131,7 +131,7 @@ End-to-End Testing with Playwright:
   3. Running Tests:
      With both servers running, execute the Playwright test runner in a third terminal.
 
-     npx playwright test
+     npm run test:e2e
 
      To enable verbose console and network logging during tests, set the following
      in your `.env.testing` file: `PLAYWRIGHT_DEBUG_LOGGING=true`

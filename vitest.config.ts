@@ -13,6 +13,7 @@ export default defineConfig((config) => {
             root: 'resources/js',
             setupFiles: 'tests/setup.ts',
             env, // Make env variables available to tests
+            exclude: ['tests/e2e/**'],
             coverage: {
                 provider: 'v8',
                 reporter: ['text', 'json-summary', 'html'],

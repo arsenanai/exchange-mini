@@ -82,7 +82,7 @@ describe('Auth Store', () => {
 
         (csrfCookie as any).mockResolvedValue({});
         (axios.post as any).mockResolvedValue({
-            data: { user: user, token: token },
+            data: { user: { data: user }, token: token },
         });
 
         await store.login({ email: 'test@test.com', password: 'password' });
@@ -110,15 +110,23 @@ describe('Auth Store', () => {
 
         (csrfCookie as any).mockResolvedValue({});
         // Mock the register call
-        (axios.post as any).mockResolvedValueOnce({});
+        (axios.post as any).mockResolvedValueOnce({
+            data: { data: user },
+        });
         // Mock the subsequent login call
         (axios.post as any).mockResolvedValueOnce({
-            data: { user: user, token: token },
+            data: { user: { data: user }, token: token },
         });
 
         await store.register(userInfo);
+
+        expect(axios.post).toHaveBeenCalledWith('/register', userInfo);
+        expect(axios.post).toHaveBeenCalledWith('/login', {
+            email: userInfo.email,
+            password: userInfo.password,
+        });
         expect(store.isAuthenticated).toBe(true);
-        expect(store.user?.email).toBe('new@test.com');
+        expect(store.user).toEqual(user);
     });
 
     it('clears auth data on logout', async () => {
