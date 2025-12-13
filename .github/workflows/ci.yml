@@ -1,9 +1,9 @@
-name: Laravel CI
+name: CI
 
 on: [push, pull_request]
 
 jobs:
-  build:
+  tests:
     runs-on: ubuntu-latest
 
     steps:
@@ -17,6 +17,11 @@ jobs:
           extensions: bcmath, sqlite, pdo_sqlite
           coverage: none
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
       - name: Install Composer dependencies
         run: composer install --prefer-dist --no-progress --no-interaction
 
@@ -25,8 +30,69 @@ jobs:
           cp .env.example .env
           php artisan key:generate
 
+      - name: Install NPM dependencies
+        run: npm install
+
       - name: Run Code Formatter (Pint)
         run: ./vendor/bin/pint --test
 
+      - name: Run Static Analysis (Larastan)
+        run: ./vendor/bin/phpstan analyse --memory-limit=2G
+
       - name: Run Tests (Pest)
         run: php artisan test
+
+      - name: Run Frontend Linter (ESLint)
+        run: npm run lint
+
+      - name: Run Frontend Tests (Vitest)
+        run: npm run test:unit
+
+      - name: Generate and Validate OpenAPI Specification
+        run: |
+          php artisan scribe:generate
+          ./vendor/bin/pint docs/openapi.yaml
+
+  e2e:
+    name: E2E Tests (Playwright)
+    runs-on: ubuntu-latest
+    needs: tests
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Prepare Environment
+        run: |
+          cp .env.testing.example .env.testing
+          cp .env.example .env
+          php artisan key:generate
+
+      - name: Install Dependencies
+        run: |
+          composer install --prefer-dist --no-progress
+          npm install
+          npx playwright install --with-deps
+
+      - name: Build Frontend Assets
+        run: npm run build
+
+      - name: Run E2E Tests
+        run: npm run test:e2e
+        env:
+          # Override env to use testing database and sync queue
+          DB_CONNECTION: sqlite
+          DB_DATABASE: database/database.sqlite
+          QUEUE_CONNECTION: sync
+          # Ensure Playwright runs headless
+          PLAYWRIGHT_HEADED: false
