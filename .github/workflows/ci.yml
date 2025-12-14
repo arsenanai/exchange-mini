@@ -47,6 +47,9 @@ jobs:
 
       - name: Run Frontend Tests (Vitest)
         run: npm run test:unit
+        env:
+          # Bypass Vite's CI environment check for running tests
+          LARAVEL_BYPASS_ENV_CHECK: 1
 
       - name: Generate and Validate OpenAPI Specification
         run: |
