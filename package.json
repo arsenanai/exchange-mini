@@ -8,7 +8,7 @@
         "dev:testing": "vite --config vite.config.testing.js --mode testing",
         "test:e2e": "npx playwright test",
         "test:unit": "vitest run --coverage --coverage.reporter=text --config ./vitest.config.ts",
-        "lint": "eslint resources/js --ext .js,.ts,.vue --ignore-path .gitignore --fix --config ./.eslintrc.cjs",
+        "lint": "eslint resources/js --ext .js,.ts,.vue --ignore-pattern \"!**/.*\" --fix --config ./.eslintrc.cjs",
         "format": "prettier --write resources/js/"
     },
     "devDependencies": {

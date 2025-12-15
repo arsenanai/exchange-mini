@@ -16,7 +16,7 @@ Core Features
 
 Tech Stack
 ----------
-- Backend: Laravel 11, PHP 8.2
+- Backend: Laravel 11, PHP 8.4
 - Frontend: Vue 3 (Composition API), Vite, Tailwind CSS
 - Database: MySQL / PostgreSQL
 - Real-time: Pusher via Laravel Broadcasting & Laravel Echo
@@ -96,7 +96,10 @@ Backend (Laravel/Pest):
   composer analyse
 
   # Run the backend feature and unit test suite
-  composer test
+  composer test # (or ./vendor/bin/pest)
+
+  # Run tests with code coverage
+  composer test:coverage
 
 Frontend (Vue/Vitest):
   # Format TypeScript/Vue code with Prettier
