@@ -1,9 +1,23 @@
+/// <reference types="vitest/globals" />
+
 import axios from 'axios';
 import { createPinia, setActivePinia } from 'pinia';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { csrfCookie } from '../bootstrap';
 import { useAuthStore } from '../stores/auth';
 import type { User } from '../stores/types';
+
+vi.mock('axios', () => ({
+    default: {
+        get: vi.fn(),
+        post: vi.fn(),
+        defaults: {
+            headers: {
+                common: {},
+            },
+        },
+    },
+}));
 
 describe('Auth Store', () => {
     beforeEach(() => {
@@ -11,9 +25,12 @@ describe('Auth Store', () => {
         // so it's automatically picked up by any useStore() call
         // without having to pass it to it: `useStore(pinia)`
         setActivePinia(createPinia());
-        localStorage.clear();
-        vi.mock('axios');
+        localStorage.clear(); // Clear localStorage before each test
         vi.mock('../bootstrap');
+    });
+
+    afterEach(() => {
+        vi.clearAllMocks();
     });
 
     it('initializes with no user or token', () => {
@@ -63,7 +80,7 @@ describe('Auth Store', () => {
 
     it('calls the csrfCookie endpoint', async () => {
         const store = useAuthStore();
-        (csrfCookie as any).mockResolvedValue({});
+        (csrfCookie as vi.Mock).mockResolvedValue({});
 
         await store.getCsrfCookie();
         expect(csrfCookie).toHaveBeenCalledTimes(1);
@@ -80,9 +97,9 @@ describe('Auth Store', () => {
         };
         const token = 'fake-token';
 
-        (csrfCookie as any).mockResolvedValue({});
-        (axios.post as any).mockResolvedValue({
-            data: { user: { data: user }, token: token },
+        (csrfCookie as vi.Mock).mockResolvedValue({});
+        (axios.post as vi.Mock).mockResolvedValue({
+            data: { user: { data: user }, token },
         });
 
         await store.login({ email: 'test@test.com', password: 'password' });
@@ -108,14 +125,14 @@ describe('Auth Store', () => {
         };
         const token = 'new-fake-token';
 
-        (csrfCookie as any).mockResolvedValue({});
+        (csrfCookie as vi.Mock).mockResolvedValue({});
         // Mock the register call
-        (axios.post as any).mockResolvedValueOnce({
-            data: { data: user },
+        (axios.post as vi.Mock).mockResolvedValueOnce({
+            data: { user: { data: user } },
         });
         // Mock the subsequent login call
-        (axios.post as any).mockResolvedValueOnce({
-            data: { user: { data: user }, token: token },
+        (axios.post as vi.Mock).mockResolvedValueOnce({
+            data: { user: { data: user }, token },
         });
 
         await store.register(userInfo);
@@ -143,7 +160,7 @@ describe('Auth Store', () => {
         store.setUserAndToken(user, token);
         expect(store.isAuthenticated).toBe(true);
 
-        (axios.post as any).mockResolvedValue({});
+        (axios.post as vi.Mock).mockResolvedValue({});
 
         await store.logout();
 
@@ -167,7 +184,7 @@ describe('Auth Store', () => {
         expect(store.isAuthenticated).toBe(true);
 
         // Mock a failed logout API call
-        (axios.post as any).mockRejectedValue(new Error('Network Error'));
+        (axios.post as vi.Mock).mockRejectedValue(new Error('Network Error'));
 
         // Spy on console.error to suppress the expected error message
         const consoleErrorSpy = vi

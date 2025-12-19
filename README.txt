@@ -122,11 +122,20 @@ End-to-End Testing with Playwright:
      # Manually create your testing database. For MySQL, you can run:
      # mysql -u root -e "CREATE DATABASE IF NOT EXISTS exchange_mini_testing;"
 
+     Also, ensure your `.env.testing` file has the correct database credentials
+     and Sanctum configuration.
+
+     # .env.testing
+     DB_DATABASE=exchange_mini_testing
+     DB_USERNAME=root
+     DB_PASSWORD=
+     SANCTUM_STATEFUL_DOMAINS="127.0.0.1:8000,localhost:8000,localhost:5173,localhost:5174"
+
   2. Start the Servers:
      You will need two separate terminal sessions for testing.
 
      # In Terminal 1, start the backend server in the testing environment:
-     php artisan serve --env=testing --port=8000
+     php artisan serve --env=testing
 
      # In Terminal 2, start the Vite dev server for the frontend:
      npm run dev:testing

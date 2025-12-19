@@ -107,6 +107,9 @@ const isSubmitting = ref(false);
 const handlePlaceOrder = async () => {
     successMessage.value = '';
     isSubmitting.value = true;
+    if (import.meta.env.VITE_PLAYWRIGHT_DEBUG_LOGGING === 'true') {
+        console.log('OrderForm: handlePlaceOrder - isSubmitting set to true');
+    }
     try {
         await ordersStore.createOrder({
             ...form.value,
@@ -114,14 +117,23 @@ const handlePlaceOrder = async () => {
             amount: String(form.value.amount),
         });
         successMessage.value = 'Order placed successfully!';
+        if (import.meta.env.VITE_PLAYWRIGHT_DEBUG_LOGGING === 'true') {
+            console.log('OrderForm: Order placed successfully, successMessage set.');
+        }
         // Reset form
         form.value.price = '';
         form.value.amount = '';
-        setTimeout(() => (successMessage.value = ''), 3000);
-    } catch (error) {
+        window.setTimeout(() => (successMessage.value = ''), 3000);
+    } catch (e) {
+        if (import.meta.env.VITE_PLAYWRIGHT_DEBUG_LOGGING === 'true') {
+            console.error('OrderForm: Error placing order:', e);
+        }
         // Error is handled in the store and displayed via ordersStore.error
     } finally {
         isSubmitting.value = false;
+        if (import.meta.env.VITE_PLAYWRIGHT_DEBUG_LOGGING === 'true') {
+            console.log('OrderForm: handlePlaceOrder - isSubmitting set to false');
+        }
     }
 };
 </script>

@@ -79,10 +79,18 @@ const handleLogin = async (): Promise<void> => {
     errorMessage.value = '';
     try {
         await authStore.login(form.value);
-    } catch (error: any) {
-        errorMessage.value =
-            error.response?.data?.message || 'An error occurred during login.';
-        console.error(error);
+    } catch (error) {
+        if (error && typeof error === 'object' && 'response' in error) {
+            const axiosError = error as {
+                response?: { data?: { message?: string } };
+            };
+            errorMessage.value =
+                axiosError.response?.data?.message ||
+                'An error occurred during login.';
+        } else {
+            errorMessage.value = 'An unexpected error occurred during login.';
+        }
+        window.console.error(error);
     }
 };
 </script>

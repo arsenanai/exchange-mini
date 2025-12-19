@@ -62,4 +62,49 @@ describe('OrderBook.vue', () => {
         expect(ordersStore.fetchOrderBook).toHaveBeenCalledTimes(2); // 1 on mount, 1 on watch
         expect(ordersStore.fetchOrderBook).toHaveBeenLastCalledWith('ETH');
     });
+
+    it('renders buy and sell orders correctly', async () => {
+        const wrapper = mount(OrderBook, {
+            global: {
+                plugins: [
+                    createTestingPinia({
+                        createSpy: vi.fn,
+                        initialState: {
+                            orders: {
+                                loading: false,
+                                orderBook: {
+                                    buy: [
+                                        {
+                                            id: 1,
+                                            price: '50000',
+                                            amount: '0.5',
+                                            side: 'buy',
+                                        },
+                                    ],
+                                    sell: [
+                                        {
+                                            id: 2,
+                                            price: '51000',
+                                            amount: '0.3',
+                                            side: 'sell',
+                                        },
+                                    ],
+                                },
+                            },
+                        },
+                    }),
+                ],
+            },
+        });
+
+        await wrapper.vm.$nextTick();
+
+        const text = wrapper.text();
+        // Check for buy order
+        expect(text).toContain('50,000.00');
+        expect(text).toContain('0.5');
+        // Check for sell order
+        expect(text).toContain('51,000.00');
+        expect(text).toContain('0.3');
+    });
 });

@@ -52,7 +52,7 @@ describe('OrderForm.vue', () => {
 
         const ordersStore = useOrdersStore();
         // Mock the action to resolve successfully
-        (ordersStore.createOrder as any).mockResolvedValue({});
+        (ordersStore.createOrder as vi.Mock).mockResolvedValue({});
 
         await wrapper.find('input#price').setValue('50000');
         await wrapper.find('input#amount').setValue('0.5');
@@ -86,7 +86,7 @@ describe('OrderForm.vue', () => {
 
         const ordersStore = useOrdersStore();
         // Mock the action to reject
-        (ordersStore.createOrder as any).mockRejectedValue(
+        (ordersStore.createOrder as vi.Mock).mockRejectedValue(
             new Error('API Error'),
         );
         ordersStore.error = 'Insufficient funds';

@@ -1,6 +1,6 @@
 import { loadEnv } from 'vite';
 import { defineConfig, mergeConfig } from 'vitest/config';
-import viteConfig from './vite.config.js';
+import viteConfig from './vite.config.ts';
 
 export default defineConfig((config) => {
     // Load .env.testing variables into process.env
@@ -10,14 +10,18 @@ export default defineConfig((config) => {
         test: {
             globals: true,
             environment: 'jsdom',
-            root: 'resources/js',
-            setupFiles: 'tests/setup.ts',
+            setupFiles: 'resources/js/tests/setup.ts',
+            // Explicitly include only unit test files
+            include: [
+                'resources/js/tests/**/*.test.ts',
+                'resources/js/components/**/*.test.ts',
+            ],
             env, // Make env variables available to tests
-            exclude: ['tests/e2e/**'],
             coverage: {
                 provider: 'v8',
                 reporter: ['text', 'json-summary', 'html'],
-                include: ['components/**', 'stores/**'],
+                // Adjust coverage paths to be relative to the project root
+                include: ['resources/js/components/**', 'resources/js/stores/**'],
                 exclude: [
                     'tests/**',
                     'types.ts',

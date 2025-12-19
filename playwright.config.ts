@@ -29,13 +29,11 @@ export default defineConfig({
 
     /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
     use: {
-        /* Base URL to use in actions like `await page.goto('/')`. */
-        baseURL: process.env.VITE_API_BASE_URL
-            ? process.env.VITE_API_BASE_URL.replace('/api', '')
-            : 'http://localhost:8000',
+        /* Base URL to use in actions like `await page.goto('/')`. The frontend dev server for testing runs on 5174. */
+        baseURL: 'http://localhost:8000',
 
         /* Whether to run tests in headed mode. Controlled by .env.testing */
-        headless: process.env.PLAYWRIGHT_HEADED !== 'true',
+        headless: process.env.CI ? true : process.env.PLAYWRIGHT_HEADED === 'false',
 
         /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
         trace: 'on-first-retry',
@@ -49,12 +47,21 @@ export default defineConfig({
         },
     ],
 
-    /* Run your local dev server before starting the tests */
-    webServer: {
-        command: 'php artisan serve',
-        url: 'http://127.0.0.1:8000',
-        reuseExistingServer: !process.env.CI,
-        stdout: 'pipe',
-        stderr: 'pipe',
-    },
+    /* Conditionally run local dev server before starting the tests, only in CI */
+    webServer: process.env.CI
+        ? [
+              {
+                  command: 'php artisan serve --env=testing --port=8000',
+                  url: 'http://127.0.0.1:8000/api/profile', // Wait for the backend API to be ready
+                  reuseExistingServer: false,
+                  timeout: 120 * 1000, // 2 minutes
+              },
+              {
+                  command: 'npm run dev:testing',
+                  url: 'http://127.0.0.1:5174', // Wait for the frontend to be ready
+                  reuseExistingServer: false,
+                  timeout: 120 * 1000, // 2 minutes
+              },
+          ]
+        : undefined,
 });

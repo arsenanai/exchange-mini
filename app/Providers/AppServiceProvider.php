@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
+use Illuminate\Support\Facades\Broadcast;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -21,6 +22,6 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        Broadcast::routes(['prefix' => 'api', 'middleware' => ['api', 'auth:sanctum']]);
     }
 }

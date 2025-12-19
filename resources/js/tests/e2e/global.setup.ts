@@ -8,19 +8,27 @@ async function globalSetup() {
     const requestContext = await request.newContext();
 
     // Clear any cached config to ensure .env.testing is loaded.
-    await requestContext.post(
+    const configClearResponse = await requestContext.post(
         'http://127.0.0.1:8000/_testing/artisan/config:clear',
     );
+    if (!configClearResponse.ok()) {
+        console.error(
+            'Failed to clear config:',
+            await configClearResponse.text(),
+        );
+        throw new Error('Failed to clear config during setup.');
+    }
+    console.log('Configuration cleared successfully.');
 
     // Run fresh migrations and seeders.
-    const response = await requestContext.post(
+    const migrateResponse = await requestContext.post(
         'http://127.0.0.1:8000/_testing/artisan/migrate:fresh',
     );
 
-    if (!response.ok()) {
-        console.error('Failed to migrate database:', await response.text());
+    if (!migrateResponse.ok()) {
+        console.error('Failed to migrate database:', await migrateResponse.text());
         throw new Error(
-            `Failed to migrate database: ${response.status()} ${response.statusText()}`,
+            `Failed to migrate database: ${migrateResponse.status()} ${migrateResponse.statusText()}`,
         );
     }
     console.log('Database migrated successfully.');

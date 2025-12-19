@@ -1,4 +1,4 @@
-import { vi } from 'vitest'; // eslint-disable-line
+import { vi } from 'vitest';
 
 // Mock the router to prevent navigation errors in tests
 vi.mock('@/router', () => ({
@@ -9,12 +9,14 @@ vi.mock('@/router', () => ({
 
 // Mock the entire laravel-echo module
 vi.mock('laravel-echo', () => {
+    // Mock the default export which is the Echo class
+    class MockEcho {
+        private = vi.fn().mockReturnThis();
+        listen = vi.fn();
+    }
+
     return {
-        // The default export is the Echo class. We mock its constructor.
-        default: vi.fn().mockImplementation(() => ({
-            private: vi.fn().mockReturnThis(),
-            listen: vi.fn(),
-        })),
+        default: MockEcho,
     };
 });
 

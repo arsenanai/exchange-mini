@@ -1,7 +1,17 @@
-import axios from 'axios';
+import axios, { isAxiosError } from 'axios';
 import { defineStore } from 'pinia';
 import { useProfileStore } from './profile';
 import type { NewOrder, Order } from './types';
+
+export const processOrderBook = (orders: Order[]) => {
+    const buy = orders
+        .filter((o) => o.side === 'buy')
+        .sort((a, b) => parseFloat(b.price) - parseFloat(a.price));
+    const sell = orders
+        .filter((o) => o.side === 'sell')
+        .sort((a, b) => parseFloat(a.price) - parseFloat(b.price));
+    return { buy, sell };
+};
 
 interface OrdersState {
     userOrders: Order[];
@@ -27,10 +37,12 @@ export const useOrdersStore = defineStore('orders', {
             try {
                 const response = await axios.get('/orders/all');
                 this.userOrders = response.data.data;
-            } catch (err: any) {
-                this.error =
-                    err.response?.data?.message ||
-                    'Failed to fetch user orders';
+            } catch (err: unknown) {
+                if (isAxiosError(err) && err.response?.data?.message) {
+                    this.error = err.response.data.message;
+                } else {
+                    this.error = 'Failed to fetch user orders';
+                }
             } finally {
                 this.loading = false;
             }
@@ -40,16 +52,13 @@ export const useOrdersStore = defineStore('orders', {
             this.loading = true;
             try {
                 const response = await axios.get(`/orders?symbol=${symbol}`);
-                const orders: Order[] = response.data.data;
-                this.orderBook.buy = orders
-                    .filter((o) => o.side === 'buy')
-                    .sort((a, b) => parseFloat(b.price) - parseFloat(a.price));
-                this.orderBook.sell = orders
-                    .filter((o) => o.side === 'sell')
-                    .sort((a, b) => parseFloat(a.price) - parseFloat(b.price));
-            } catch (err: any) {
-                this.error =
-                    err.response?.data?.message || 'Failed to fetch order book';
+                this.orderBook = processOrderBook(response.data.data);
+            } catch (err: unknown) {
+                if (isAxiosError(err) && err.response?.data?.message) {
+                    this.error = err.response.data.message;
+                } else {
+                    this.error = 'Failed to fetch order book';
+                }
             } finally {
                 this.loading = false;
             }
@@ -67,9 +76,12 @@ export const useOrdersStore = defineStore('orders', {
                 await profileStore.fetchProfile();
 
                 return newOrder;
-            } catch (err: any) {
-                this.error =
-                    err.response?.data?.message || 'Failed to create order';
+            } catch (err: unknown) {
+                if (isAxiosError(err) && err.response?.data?.message) {
+                    this.error = err.response.data.message;
+                } else {
+                    this.error = 'Failed to create order';
+                }
                 throw err;
             }
         },
@@ -92,17 +104,20 @@ export const useOrdersStore = defineStore('orders', {
                 await profileStore.fetchProfile();
 
                 return cancelledOrder;
-            } catch (err: any) {
-                this.error =
-                    err.response?.data?.message || 'Failed to cancel order';
+            } catch (err: unknown) {
+                if (isAxiosError(err) && err.response?.data?.message) {
+                    this.error = err.response.data.message;
+                } else {
+                    this.error = 'Failed to cancel order';
+                }
                 throw err;
             }
         },
 
         listenForMatches(userId: number) {
-            (window as any).Echo.private(`user.${userId}`).listen(
+            window.Echo.private(`user.${userId}`).listen(
                 'OrderMatched',
-                (event: any) => {
+                (event: { order: Order }) => {
                     // Update the status of the matched order in the user's order list
                     const orderIndex = this.userOrders.findIndex(
                         (o) => o.id === event.order.id,

@@ -4,7 +4,9 @@
         "vite.config.js",
         "vitest.config.ts",
         "postcss.config.cjs",
-        "tailwind.config.ts"
+        "tailwind.config.ts",
+        "playwright.config.ts",
+        "eslint.config.ts"
     ],
     "compilerOptions": {
         "composite": true,

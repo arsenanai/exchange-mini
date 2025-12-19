@@ -94,10 +94,18 @@ const handleRegister = async (): Promise<void> => {
     errorMessage.value = '';
     try {
         await authStore.register(form.value);
-    } catch (error: any) {
-        errorMessage.value =
-            error.response?.data?.message ||
-            'An error occurred during registration.';
+    } catch (error) {
+        if (error && typeof error === 'object' && 'response' in error) {
+            const axiosError = error as {
+                response?: { data?: { message?: string } };
+            };
+            errorMessage.value =
+                axiosError.response?.data?.message ||
+                'An error occurred during registration.';
+        } else {
+            errorMessage.value =
+                'An unexpected error occurred during registration.';
+        }
         console.error(error);
     }
 };

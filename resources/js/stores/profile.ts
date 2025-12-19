@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios, { isAxiosError } from 'axios';
 import { defineStore } from 'pinia';
 import type { User } from './types';
 
@@ -32,9 +32,12 @@ export const useProfileStore = defineStore('profile', {
             try {
                 const response = await axios.get('/profile');
                 this.user = response.data.data;
-            } catch (err: any) {
-                this.error =
-                    err.response?.data?.message || 'Failed to fetch profile';
+            } catch (err: unknown) {
+                if (isAxiosError(err) && err.response?.data?.message) {
+                    this.error = err.response.data.message;
+                } else {
+                    this.error = 'Failed to fetch profile';
+                }
             } finally {
                 this.loading = false;
             }
