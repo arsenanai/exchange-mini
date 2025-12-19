@@ -31,7 +31,7 @@ test('user can register, login, and manage orders', async ({ page }) => {
                     try {
                         const body = await response.text();
                         console.error(`   Body: ${body}`);
-                    } catch (e) {
+                    } catch {
                         // Ignore errors reading the body, e.g. for non-text responses.
                     }
                 } else {
@@ -64,7 +64,7 @@ test('user can register, login, and manage orders', async ({ page }) => {
         let body = '';
         try {
             body = await registerResponse.text();
-        } catch (e) {
+        } catch {
             body = '[Could not read response body]';
         }
         console.log(`Debug: /api/register Response - Status: ${status}, Body: ${body}`);
@@ -79,7 +79,7 @@ test('user can register, login, and manage orders', async ({ page }) => {
         let body = '';
         try {
             body = await loginResponse.text();
-        } catch (e) {
+        } catch {
             body = '[Could not read response body]';
         }
         console.log(`Debug: /api/login Response - Status: ${status}, Body: ${body}`);
