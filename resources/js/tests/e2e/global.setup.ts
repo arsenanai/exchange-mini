@@ -26,7 +26,10 @@ async function globalSetup() {
     );
 
     if (!migrateResponse.ok()) {
-        console.error('Failed to migrate database:', await migrateResponse.text());
+        console.error(
+            'Failed to migrate database:',
+            await migrateResponse.text(),
+        );
         throw new Error(
             `Failed to migrate database: ${migrateResponse.status()} ${migrateResponse.statusText()}`,
         );

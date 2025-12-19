@@ -16,7 +16,9 @@ vi.mock('axios', () => {
     return {
         default: defaultExport,
         __esModule: true,
-        isAxiosError: (payload: unknown): payload is import('axios').AxiosError =>
+        isAxiosError: (
+            payload: unknown,
+        ): payload is import('axios').AxiosError =>
             payload?.isAxiosError === true,
     };
 });

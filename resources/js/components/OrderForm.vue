@@ -118,7 +118,9 @@ const handlePlaceOrder = async () => {
         });
         successMessage.value = 'Order placed successfully!';
         if (import.meta.env.VITE_PLAYWRIGHT_DEBUG_LOGGING === 'true') {
-            console.log('OrderForm: Order placed successfully, successMessage set.');
+            console.log(
+                'OrderForm: Order placed successfully, successMessage set.',
+            );
         }
         // Reset form
         form.value.price = '';
@@ -132,7 +134,9 @@ const handlePlaceOrder = async () => {
     } finally {
         isSubmitting.value = false;
         if (import.meta.env.VITE_PLAYWRIGHT_DEBUG_LOGGING === 'true') {
-            console.log('OrderForm: handlePlaceOrder - isSubmitting set to false');
+            console.log(
+                'OrderForm: handlePlaceOrder - isSubmitting set to false',
+            );
         }
     }
 };

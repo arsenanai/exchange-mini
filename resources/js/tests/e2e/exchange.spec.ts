@@ -67,7 +67,9 @@ test('user can register, login, and manage orders', async ({ page }) => {
         } catch {
             body = '[Could not read response body]';
         }
-        console.log(`Debug: /api/register Response - Status: ${status}, Body: ${body}`);
+        console.log(
+            `Debug: /api/register Response - Status: ${status}, Body: ${body}`,
+        );
     }
 
     // Wait for the login API response after successful registration and implicit login
@@ -82,8 +84,13 @@ test('user can register, login, and manage orders', async ({ page }) => {
         } catch {
             body = '[Could not read response body]';
         }
-        console.log(`Debug: /api/login Response - Status: ${status}, Body: ${body}`);
-        console.log('Debug: Token in localStorage after login:', await page.evaluate(() => localStorage.getItem('token')));
+        console.log(
+            `Debug: /api/login Response - Status: ${status}, Body: ${body}`,
+        );
+        console.log(
+            'Debug: Token in localStorage after login:',
+            await page.evaluate(() => localStorage.getItem('token')),
+        );
     }
 
     // After registration/login, we should be on the exchange page
@@ -128,7 +135,9 @@ test('user can register, login, and manage orders', async ({ page }) => {
     // This is crucial because createOrder in the store awaits profileStore.fetchProfile().
     await page.waitForResponse('**/api/profile');
 
-    await expect(page.getByText('Order placed successfully!')).toBeVisible({ timeout: 10000 });
+    await expect(page.getByText('Order placed successfully!')).toBeVisible({
+        timeout: 10000,
+    });
 
     // 5. Verify Order and Balance Update
     // We use a test ID to reliably find the row, as its content is dynamic.
